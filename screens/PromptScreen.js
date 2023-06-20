@@ -1,11 +1,14 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
 import {auth, firestore} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
+import ProfilePicture from "../components/ProfilePicture";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
+
+    const [pfp, setPfp] = useState(null)
     const handleSignOut = () => {
         auth
             .signOut()
@@ -27,12 +30,17 @@ const PromptScreen = () => {
 
     //upload profile picture from device storage
     const pfpSelect = async () => {
-        let pfp = await ImagePicker.launchImageLibraryAsync({
+        await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
-        });
+        })
+            .then(image => {
+                if (!image.canceled) {
+                    setPfp(image.assets[0].uri)
+                }
+            })
     }
 
 
@@ -44,13 +52,13 @@ const PromptScreen = () => {
             <TextInput
                 placeholder='bio'
             />
+            <ProfilePicture selectedImage={pfp} />
             <TouchableOpacity
                 onPress={pfpSelect}
                 style={styles.button}
             >
                 <Text style={styles.buttonText}>Upload Profile Photo</Text>
             </TouchableOpacity>
-
             <TouchableOpacity
                 onPress={handleSave}
                 style={styles.button}
