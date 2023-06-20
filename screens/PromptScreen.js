@@ -1,7 +1,8 @@
 import React from 'react'
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import {auth} from "../firebase";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {auth, firestore} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
+import * as ImagePicker from 'expo-image-picker';
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -13,9 +14,49 @@ const PromptScreen = () => {
             })
             .catch(error => alert(error.message))
     }
+
+    //gets a list of concert performers from firebase
+    const getConcertArtists = () => {
+
+    }
+
+    //saves user data to firebase firestore
+    const handleSave = () => {
+
+    }
+
+    //upload profile picture from device storage
+    const pfpSelect = async () => {
+        let pfp = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+    }
+
+
     return (
         <View style={(styles.container)}>
-            <Text>Prompt</Text>
+            <TextInput
+                placeholder="name"
+            />
+            <TextInput
+                placeholder='bio'
+            />
+            <TouchableOpacity
+                onPress={pfpSelect}
+                style={styles.button}
+            >
+                <Text style={styles.buttonText}>Upload Profile Photo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                onPress={handleSave}
+                style={styles.button}
+            >
+                <Text style={styles.buttonText}>Save</Text>
+            </TouchableOpacity>
             <TouchableOpacity
                 onPress={handleSignOut}
                 style={styles.button}
@@ -45,5 +86,5 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '700',
         fontSize: 16,
-    },
+    }
 })
