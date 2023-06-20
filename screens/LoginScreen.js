@@ -5,29 +5,37 @@ import { auth } from '../firebase'
 const LoginScreen = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [isSigningUp, setIsSigningUp] = useState(false);
 
     const navigation = useNavigation()
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                navigation.replace("Home")
+                console.log(isSigningUp)
+                if (isSigningUp) {
+                    navigation.replace("Prompt")
+                } else {
+                    navigation.replace("Home")
+                }
             }
         })
 
         return unsubscribe
-    }, [])
+    }, [isSigningUp])
     const handleSignUp = () => {
+        setIsSigningUp(true);
         auth
             .createUserWithEmailAndPassword(email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
-                console.log(user.email);
+                console.log('signingup', user.email);
             })
             .catch(error => alert(error.message))
     }
 
     const handleLogin = () => {
+        setIsSigningUp(false);
         auth
             .signInWithEmailAndPassword(email, password)
             .then(userCredentials => {
