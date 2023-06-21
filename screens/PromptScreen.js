@@ -1,14 +1,17 @@
 import React, {useState} from 'react'
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
-import {auth, firestore} from "../firebase";
+import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {auth, db, colRef} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
+import {doc, setDoc} from "firebase/firestore";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
 
     const [pfp, setPfp] = useState(null)
+    const [name, setName] = useState(null);
+    const [bio, setBio] = useState(null);
     const handleSignOut = () => {
         auth
             .signOut()
@@ -24,8 +27,23 @@ const PromptScreen = () => {
     }
 
     //saves user data to firebase firestore
-    const handleSave = () => {
+    const handleSave = async () => {
 
+        console.log(name, bio)
+        const docRef = doc(db, "users", auth.currentUser?.email);
+        await setDoc(docRef, {
+            username: name,
+            userBio: bio
+        });
+
+        // todoRef
+        //     .add(data)
+        //     .then(() => {
+        //         Keyboard.dismiss();
+        //     })
+        //     .catch((error) => {
+        //         alert(error);
+        //     })
     }
 
     //upload profile picture from device storage
@@ -48,9 +66,15 @@ const PromptScreen = () => {
         <View style={(styles.container)}>
             <TextInput
                 placeholder="name"
+                value={name}
+                onChangeText={text => setName(text)}
+                style={styles.input}
             />
             <TextInput
                 placeholder='bio'
+                value={bio}
+                onChangeText={text => setBio(text)}
+                style={styles.input}
             />
             <ProfilePicture selectedImage={pfp} />
             <TouchableOpacity
@@ -82,6 +106,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    input: {
+        backgroundColor: 'white',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 10,
+        marginTop:5,
     },
     button: {
         backgroundColor: '#0782F9',
