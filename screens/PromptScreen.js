@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View, Image} from 'react-native'
 import {auth, db, colRef} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
@@ -33,7 +33,8 @@ const PromptScreen = () => {
         const docRef = doc(db, "users", auth.currentUser?.email);
         await setDoc(docRef, {
             username: name,
-            userBio: bio
+            userBio: bio,
+            userPfp: pfp
         });
 
         // todoRef
@@ -48,17 +49,16 @@ const PromptScreen = () => {
 
     //upload profile picture from device storage
     const pfpSelect = async () => {
-        await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+        let imageGot = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
-        })
-            .then(image => {
-                if (!image.canceled) {
-                    setPfp(image.assets[0].uri)
-                }
-            })
+        });
+
+        // if (!imageGot.canceled) {
+        setPfp(imageGot.assets[0].uri);
+        // }
     }
 
 

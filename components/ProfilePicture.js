@@ -9,9 +9,10 @@ function ProfilePicture({ selectedImage }) {
             />
         )
     } else {
+        console.log("hello", selectedImage);
         return (
             <Image
-                source={{uri: selectedImage}}
+                source={{uri: selectedImage}} style={{ width: 200, height: 200 }}
             />
         )
     }
