@@ -1,33 +1,65 @@
 import React, {useEffect, useState} from 'react'
-import {Button, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import {auth, db} from "../firebase";
+import {Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {auth, db, storage} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
 import {doc, getDoc} from "firebase/firestore";
+import {ref, getDownloadURL} from "firebase/storage";
+import ProfilePicture from "../components/ProfilePicture";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
     const [showProfile, setShowProfile] = useState(false);
     const docRef = doc(db, "users", auth.currentUser?.email);
     const [userData, setUserData] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null);
     useEffect(() => {
+        const getUserData = async() => {
+            try {
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    console.log("Document data:", docSnap.data());
+                    setUserData(docSnap.data());
+                } else {
+                    // doc.data() will be undefined in this case
+                    console.log("No such document!");
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
         getUserData();
     }, []);
 
-    const getUserData = async() => {
-        try {
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                console.log("Document data:", docSnap.data());
-                setUserData(docSnap.data());
-            } else {
-                // doc.data() will be undefined in this case
-                console.log("No such document!");
+    useEffect(() => {
+        const getImage = async() => {
+            if (userData) {
+                const imageUri = userData["userPfp"];
+                const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+                const imageRef = ref(storage, `images/${fileName}`);
+                let url;
+                const downloadURL = await getDownloadURL(imageRef).then((x) => {
+                    url = x;
+                    console.log("WTFFF, ", url);
+                });
+                setImageUrl(url);
             }
-        } catch (error) {
-            console.log(error)
         }
-    }
+        getImage();
+    }, [userData]);
+
+
+
+    const getImageFromFirebase = async (imageUri) => {
+        try {
+            const fileName = imageUri.substring(imageUri.lastIndexOf('/')+1);
+            const imageRef = ref(storage, `images/${fileName}`);
+
+            const downloadURL = await getDownloadURL(imageRef);
+        } catch (error) {
+            console.log('Error uploading image:', error);
+        }
+    };
 
     const handleSignOut = () => {
         auth
@@ -39,7 +71,8 @@ const HomeScreen = () => {
     }
 
     const showProfileToggle = async () => {
-        console.log("Hi", userData);
+        // console.log("Hi", userData);
+        // console.log("Hi!!!!!!!", imageUrl);
         setShowProfile(!showProfile);
     }
 
@@ -49,9 +82,9 @@ const HomeScreen = () => {
             {showProfile && (
                 <View>
                     <Text>Email: {auth.currentUser?.email}</Text>
-                    <Text>userBio: {userData["userBio"]}</Text>
-                    <Text>userPfp: {userData["userPfp"]}</Text>
                     <Text>username: {userData["username"]}</Text>
+                    <Text>userBio: {userData["userBio"]}</Text>
+                    <Image source={{uri: imageUrl}} style={{width: 200, height: 200}}/>
                 </View>
             )}
 
