@@ -13,6 +13,7 @@ const LoginScreen = () => {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
+                console.log(auth.currentUser);
                 console.log(isSigningUp)
                 if (isSigningUp) {
                     navigation.replace("Prompt")

@@ -13,6 +13,12 @@ const HomeScreen = () => {
     const [userData, setUserData] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                navigation.replace('Login');
+            }
+        });
+
         const getUserData = async() => {
             try {
                 const docSnap = await getDoc(docRef);

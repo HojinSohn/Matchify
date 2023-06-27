@@ -13,13 +13,9 @@ const PromptScreen = () => {
     const [pfp, setPfp] = useState(null)
     const [name, setName] = useState(null);
     const [bio, setBio] = useState(null);
-    const handleSignOut = () => {
-        auth
-            .signOut()
-            .then(() => {
-                navigation.replace("Login")
-            })
-            .catch(error => alert(error.message))
+    const handleQuit = () => {
+        auth.currentUser.delete();
+        navigation.replace("Login");
     }
 
     //gets a list of concert performers from firebase
@@ -100,10 +96,10 @@ const PromptScreen = () => {
                 <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                onPress={handleSignOut}
+                onPress={handleQuit}
                 style={styles.button}
             >
-                <Text style={styles.buttonText}>Sign out</Text>
+                <Text style={styles.buttonText}>Quit</Text>
             </TouchableOpacity>
         </View>
     )
