@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/core'
 import React, {useState, useEffect} from 'react'
 import {KeyboardAvoidingView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View} from 'react-native'
-import { auth } from '../firebase'
+import {auth, db} from '../firebase'
+import {doc, getDoc} from "firebase/firestore";
 const LoginScreen = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -34,11 +35,11 @@ const LoginScreen = () => {
             .catch(error => alert(error.message))
     }
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         setIsSigningUp(false);
         auth
             .signInWithEmailAndPassword(email, password)
-            .then(userCredentials => {
+            .then(async userCredentials => {
                 const user = userCredentials.user;
                 console.log('Logged in with:', user.email);
             })

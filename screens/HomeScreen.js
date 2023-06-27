@@ -1,10 +1,34 @@
-import React from 'react'
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import {auth} from "../firebase";
+import React, {useEffect, useState} from 'react'
+import {Button, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {auth, db} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
+import {doc, getDoc} from "firebase/firestore";
 
 const HomeScreen = () => {
-    const navigation = useNavigation()
+    const navigation = useNavigation();
+    const [showProfile, setShowProfile] = useState(false);
+    const docRef = doc(db, "users", auth.currentUser?.email);
+    const [userData, setUserData] = useState(null);
+    useEffect(() => {
+        getUserData();
+    }, []);
+
+    const getUserData = async() => {
+        try {
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                console.log("Document data:", docSnap.data());
+                setUserData(docSnap.data());
+            } else {
+                // doc.data() will be undefined in this case
+                console.log("No such document!");
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const handleSignOut = () => {
         auth
             .signOut()
@@ -13,9 +37,24 @@ const HomeScreen = () => {
             })
             .catch(error => alert(error.message))
     }
+
+    const showProfileToggle = async () => {
+        console.log("Hi", userData);
+        setShowProfile(!showProfile);
+    }
+
     return (
         <View style={(styles.container)}>
-            <Text>Email: {auth.currentUser?.email}</Text>
+            <Button title="Show Profile" onPress={showProfileToggle} />
+            {showProfile && (
+                <View>
+                    <Text>Email: {auth.currentUser?.email}</Text>
+                    <Text>userBio: {userData["userBio"]}</Text>
+                    <Text>userPfp: {userData["userPfp"]}</Text>
+                    <Text>username: {userData["username"]}</Text>
+                </View>
+            )}
+
             <TouchableOpacity
                 onPress={handleSignOut}
                 style={styles.button}

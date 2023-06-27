@@ -4,7 +4,7 @@ import {auth, db, colRef} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
-import {doc, setDoc} from "firebase/firestore";
+import {doc, getDoc, setDoc} from "firebase/firestore";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -36,15 +36,7 @@ const PromptScreen = () => {
             userBio: bio,
             userPfp: pfp
         });
-
-        // todoRef
-        //     .add(data)
-        //     .then(() => {
-        //         Keyboard.dismiss();
-        //     })
-        //     .catch((error) => {
-        //         alert(error);
-        //     })
+        navigation.replace("Home")
     }
 
     //upload profile picture from device storage
