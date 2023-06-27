@@ -1,10 +1,11 @@
 import React, {useState} from 'react'
 import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View, Image} from 'react-native'
-import {auth, db, colRef} from "../firebase";
+import {auth, db, colRef, storage} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
 import {doc, getDoc, setDoc} from "firebase/firestore";
+import {ref, uploadBytes } from 'firebase/storage';
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -36,6 +37,7 @@ const PromptScreen = () => {
             userBio: bio,
             userPfp: pfp
         });
+        await uploadImageToFirebase(pfp);
         navigation.replace("Home")
     }
 
@@ -52,6 +54,22 @@ const PromptScreen = () => {
         setPfp(imageGot.assets[0].uri);
         // }
     }
+
+    const uploadImageToFirebase = async (imageUri) => {
+        try {
+            const response = await fetch(imageUri);
+            const blob = await response.blob();
+
+            const fileName = imageUri.substring(imageUri.lastIndexOf('/')+1);
+            const imageRef = ref(storage, `images/${fileName}`);
+
+            await uploadBytes(imageRef, blob);
+
+            console.log('Image uploaded successfully.');
+        } catch (error) {
+            console.log('Error uploading image:', error);
+        }
+    };
 
 
     return (
