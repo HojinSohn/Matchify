@@ -78,13 +78,15 @@ const HomeScreen = () => {
 
     return (
         <View style={(styles.container)}>
-            <Button title="Show Profile" onPress={showProfileToggle} />
+            <TouchableOpacity onPress={showProfileToggle} style={styles.button}>
+                <Text style={styles.buttonText}>{showProfile ? 'Hide Profile' : 'Show Profile'}</Text>
+            </TouchableOpacity>
             {showProfile && (
                 <View>
                     <Text>Email: {auth.currentUser?.email}</Text>
                     <Text>username: {userData["username"]}</Text>
                     <Text>userBio: {userData["userBio"]}</Text>
-                    <Image source={{uri: imageUrl}} style={{width: 200, height: 200}}/>
+                    <Image source={{uri: imageUrl}} style={styles.profileImage}/>
                 </View>
             )}
 
@@ -117,5 +119,11 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '700',
         fontSize: 16,
+    },
+    profileImage: {
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        marginBottom: 8,
     },
 })
