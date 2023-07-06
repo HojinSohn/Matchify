@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View, Image} from 'react-native'
 import {auth, db, colRef, storage} from "../firebase";
 import {useNavigation} from "@react-navigation/core";
@@ -6,9 +6,22 @@ import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {ref, uploadBytes } from 'firebase/storage';
+import {makeRedirectUri, useAuthRequest} from "expo-auth-session";
+import * as WebBrowser from 'expo-web-browser';
+import axios from 'axios';
+import { encode } from 'base-64';
+import qs from 'qs';
 
 const PromptScreen = () => {
     const navigation = useNavigation()
+
+    WebBrowser.maybeCompleteAuthSession();
+
+
+    const discovery = {
+        authorizationEndpoint: 'https://accounts.spotify.com/authorize',
+        tokenEndpoint: 'https://accounts.spotify.com/api/token',
+    };
 
     const [pfp, setPfp] = useState(null)
     const [name, setName] = useState(null);
@@ -17,6 +30,58 @@ const PromptScreen = () => {
         auth.currentUser.delete();
         navigation.replace("Login");
     }
+
+    const [request, response, promptAsync] = useAuthRequest(
+        {
+            clientId: 'c2f5a819d4684f8c9efc489144cb0e0a',
+            scopes: ['user-read-email', 'playlist-modify-public'],
+            // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
+            // this must be set to false
+            usePKCE: false,
+            redirectUri: 'exp://192.168.1.20:19000/--/',
+        },
+        discovery
+    );
+
+    useEffect(() => {
+        console.log("Hello@@@@@@@@@@@@@@", response?.type);
+        if (response?.type === 'success') {
+            const { code} = response.params;
+            console.log(code);
+            exchangeCodeForAccessToken(code);
+            // Use the access token to make a request to the Spotify API
+        }
+    }, [response]);
+
+    const exchangeCodeForAccessToken = async (code) => {
+        const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
+        const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
+        const redirectUri = 'exp://192.168.1.20:19000/--/';
+
+        try {
+            const response = await axios.post(
+                'https://accounts.spotify.com/api/token',
+                new URLSearchParams({
+                    code: code,
+                    redirect_uri: redirectUri,
+                    grant_type: 'authorization_code'
+                }).toString(),
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': 'Basic ' + encode(`${clientId}:${clientSecret}`)
+                    }
+                },
+            );
+
+            const { access_token } = await response.data;
+
+            // Use the access_token for Spotify API requests
+            console.log('Access Token:', access_token);
+        } catch (error) {
+            console.error('Error exchanging authorization code for access token:', error);
+        }
+    };
 
     //gets a list of concert performers from firebase
     const getConcertArtists = () => {
@@ -100,6 +165,15 @@ const PromptScreen = () => {
                 style={styles.button}
             >
                 <Text style={styles.buttonText}>Quit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                disabled={!request}
+                onPress={() => {
+                    promptAsync();
+                }}
+                style={styles.button}
+            >
+                <Text style={styles.buttonText}>Spotify Test</Text>
             </TouchableOpacity>
         </View>
     )

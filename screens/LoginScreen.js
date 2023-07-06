@@ -1,7 +1,9 @@
 import { useNavigation } from '@react-navigation/core'
 import React, {useState, useEffect} from 'react'
 import {KeyboardAvoidingView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View} from 'react-native'
-import {auth, db} from '../firebase'
+import {auth, provider} from '../firebase'
+
+
 import {doc, getDoc} from "firebase/firestore";
 const LoginScreen = () => {
     const [email, setEmail] = useState('')
@@ -13,8 +15,8 @@ const LoginScreen = () => {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                console.log(auth.currentUser);
-                console.log(isSigningUp)
+                console.log("111, ", auth.currentUser);
+                console.log("222, ", isSigningUp)
                 if (isSigningUp) {
                     navigation.replace("Prompt")
                 } else {

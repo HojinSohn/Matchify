@@ -3,10 +3,11 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider} from 'firebase/auth';
 import { getFirestore, collection} from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 //import { getAnalytics } from "firebase/analytics";
+// import {GoogleSignin} from "@react-native-google-signin/google-signin";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -26,12 +27,20 @@ const firebaseConfig = {
 let app;
 if (firebase.apps.length === 0) {
     app = firebase.initializeApp(firebaseConfig);
+    // app = initializeApp(firebaseConfig);
 } else {
     app = firebase.app()
 }
 const auth = firebase.auth();
+// const auth = getAuth(app);
 export { auth };
 
+// GoogleSignin.configure({
+//     webClientId:'593959637896-vfaq2ullrpiq3se2kpo455g6ac0aldh4.apps.googleusercontent.com'
+// });
+// export {GoogleSignin};
+const provider = firebase.auth.GoogleAuthProvider;
+export {provider};
 
 const db = getFirestore(app)
 export { db }
