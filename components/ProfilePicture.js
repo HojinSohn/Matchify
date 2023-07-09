@@ -12,7 +12,7 @@ function ProfilePicture({ selectedImage }) {
         console.log("hello", selectedImage);
         return (
             <Image
-                source={{uri: selectedImage}} style={{ width: 200, height: 200 }}
+                source={{uri: selectedImage}} style={{ width: 130, height: 130 , marginTop: 5}}
             />
         )
     }

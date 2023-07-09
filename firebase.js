@@ -2,8 +2,6 @@
 //import * as firebase from "firebase";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider} from 'firebase/auth';
 import { getFirestore, collection} from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 //import { getAnalytics } from "firebase/analytics";

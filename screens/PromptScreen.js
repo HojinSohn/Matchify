@@ -10,10 +10,20 @@ import {makeRedirectUri, useAuthRequest} from "expo-auth-session";
 import * as WebBrowser from 'expo-web-browser';
 import axios from 'axios';
 import { encode } from 'base-64';
-import qs from 'qs';
+import { Entypo } from '@expo/vector-icons';
 
 const PromptScreen = () => {
     const navigation = useNavigation()
+    const [pfp, setPfp] = useState(null)
+    const [name, setName] = useState(null);
+    const [bio, setBio] = useState(null);
+    const [userProfileData, setUserProfileData] = useState(null);
+    const [userTopItems, setUserTopItems] = useState(null);
+    const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
+    const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
+    const redirectUri = 'exp://192.168.1.20:19000/--/';
+    var gotAccessToken = false;
+    // const [accessToken, setAccessToken] = useState(null);
 
     WebBrowser.maybeCompleteAuthSession();
 
@@ -23,22 +33,15 @@ const PromptScreen = () => {
         tokenEndpoint: 'https://accounts.spotify.com/api/token',
     };
 
-    const [pfp, setPfp] = useState(null)
-    const [name, setName] = useState(null);
-    const [bio, setBio] = useState(null);
-    const handleQuit = () => {
-        auth.currentUser.delete();
-        navigation.replace("Login");
-    }
-
     const [request, response, promptAsync] = useAuthRequest(
         {
-            clientId: 'c2f5a819d4684f8c9efc489144cb0e0a',
-            scopes: ['user-read-email', 'playlist-modify-public'],
+            clientId: clientId,
+            scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'user-read-private',
+                'user-top-read', 'playlist-read-private'],
             // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
             // this must be set to false
             usePKCE: false,
-            redirectUri: 'exp://192.168.1.20:19000/--/',
+            redirectUri: redirectUri,
         },
         discovery
     );
@@ -49,15 +52,12 @@ const PromptScreen = () => {
             const { code} = response.params;
             console.log(code);
             exchangeCodeForAccessToken(code);
+
             // Use the access token to make a request to the Spotify API
         }
     }, [response]);
 
     const exchangeCodeForAccessToken = async (code) => {
-        const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
-        const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
-        const redirectUri = 'exp://192.168.1.20:19000/--/';
-
         try {
             const response = await axios.post(
                 'https://accounts.spotify.com/api/token',
@@ -78,10 +78,47 @@ const PromptScreen = () => {
 
             // Use the access_token for Spotify API requests
             console.log('Access Token:', access_token);
+            gotAccessToken = true;
+            await getUserProfile(access_token);
+            await getUsersTopItem(access_token);
         } catch (error) {
             console.error('Error exchanging authorization code for access token:', error);
         }
     };
+
+    const getUserProfile = async (token) => {
+        var userData = [];
+        const response = await axios.get('https://api.spotify.com/v1/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        })
+        const userProfile = response.data;
+        userData.push(userProfile["country"])
+        userData.push(userProfile["followers"]["total"])
+        userData.push(userProfile["display_name"])
+        userData.push(userProfile["email"])
+        setUserProfileData(userData);
+    }
+
+    const getUsersTopItem = async (token) => {
+        var topItems = [];
+        const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        })
+        for (let item of response.data["items"]) {
+            topItems.push(item["name"]);
+        }
+
+        setUserTopItems(topItems);
+    }
+
+    const handleQuit = () => {
+        auth.currentUser.delete();
+        navigation.replace("Login");
+    }
 
     //gets a list of concert performers from firebase
     const getConcertArtists = () => {
@@ -91,12 +128,14 @@ const PromptScreen = () => {
     //saves user data to firebase firestore
     const handleSave = async () => {
 
-        console.log(name, bio)
+        console.log(name, bio, userTopItems, userProfileData)
         const docRef = doc(db, "users", auth.currentUser?.email);
         await setDoc(docRef, {
             username: name,
             userBio: bio,
-            userPfp: pfp
+            userPfp: pfp,
+            topArtists: userTopItems,
+            userSpotifyData: userProfileData
         });
         await uploadImageToFirebase(pfp);
         navigation.replace("Home")
@@ -135,19 +174,27 @@ const PromptScreen = () => {
 
     return (
         <View style={(styles.container)}>
-            <TextInput
-                placeholder="name"
-                value={name}
-                onChangeText={text => setName(text)}
-                style={styles.input}
-            />
-            <TextInput
-                placeholder='bio'
-                value={bio}
-                onChangeText={text => setBio(text)}
-                style={styles.input}
-            />
-            <ProfilePicture selectedImage={pfp} />
+            <View style={styles.userProfile}>
+                <TextInput
+                    placeholder="name"
+                    value={name}
+                    onChangeText={text => setName(text)}
+                    style={styles.input}
+                />
+                <View style={styles.bioContainer}>
+                    <ProfilePicture selectedImage={pfp} />
+                    <TextInput
+                        multiline={true}
+                        numberOfLines={5}
+                        textAlignVertical="top"
+                        textAlign="left"
+                        placeholder='bio'
+                        value={bio}
+                        onChangeText={text => setBio(text)}
+                        style={styles.bioInput}
+                    />
+                </View>
+            </View>
             <TouchableOpacity
                 onPress={pfpSelect}
                 style={styles.button}
@@ -171,9 +218,21 @@ const PromptScreen = () => {
                 onPress={() => {
                     promptAsync();
                 }}
-                style={styles.button}
+                style={{
+                    width: '60%',
+                    borderRadius: 25,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#1DB954",
+                    flexDirection: "row",
+                    padding: 10,
+                    marginTop: 10,
+                    borderColor: "#000000",
+                    borderWidth: 1.5,
+                }}
             >
-                <Text style={styles.buttonText}>Spotify Test</Text>
+                <Entypo name="spotify" size={24} color="white" />
+                <Text style={styles.buttonText}>Link Spotify Account</Text>
             </TouchableOpacity>
         </View>
     )
@@ -182,24 +241,45 @@ const PromptScreen = () => {
 export default PromptScreen
 
 const styles = StyleSheet.create({
+    bioInput: {
+        backgroundColor: 'white',
+        width: 170,
+        height: 170,
+        borderRadius: 10,
+        marginHorizontal: 10,
+    },
+    bioContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: "row",
+    },
+    userProfile: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: "column",
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        // backgroundColor: "#121212",
     },
     input: {
         backgroundColor: 'white',
-        paddingHorizontal: 15,
+        paddingHorizontal: 30,
         paddingVertical: 10,
         borderRadius: 10,
-        marginTop:5,
+        marginVertical: 5,
     },
     button: {
         backgroundColor: '#0782F9',
         width: '60%',
         padding: 15,
-        borderRadius: 10,
-        alignItems: 'center'
+        borderRadius: 25,
+        alignItems: 'center',
+        marginTop: 10,
+        borderColor: "#000000",
+        borderWidth: 1.5,
     },
     buttonText: {
         color: 'white',
