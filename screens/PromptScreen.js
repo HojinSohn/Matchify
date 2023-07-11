@@ -4,28 +4,26 @@ import {auth, db, colRef, storage} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
-import {doc, getDoc, setDoc} from "firebase/firestore";
+import {doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
 import {ref, uploadBytes } from 'firebase/storage';
 import {makeRedirectUri, useAuthRequest} from "expo-auth-session";
 import * as WebBrowser from 'expo-web-browser';
-import axios from 'axios';
-import { encode } from 'base-64';
 import { Entypo } from '@expo/vector-icons';
-import {getImageUrl} from "../firebase/storage";
+import {deleteImage, getImageUrl} from "../firebase/storage";
 import {exchangeCodeForAccessToken, clientId, redirectUri} from "../api/token";
 import {getUserProfile, getUsersTopItem} from "../api/api";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
     const [pfp, setPfp] = useState(null)
-    const [name, setName] = useState(null);
-    const [bio, setBio] = useState(null);
+    const [name, setName] = useState('');
+    const [bio, setBio] = useState('');
     const [userProfileData, setUserProfileData] = useState(null);
     const [userTopItems, setUserTopItems] = useState(null);
-    // const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
-    // const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
-    // const redirectUri = 'exp://192.168.1.20:19000/--/';
+    const [prevPfp, setPrevPfp] = useState(null);
+    // const [imageUrl, setImageUrl] = useState(null);
     var gotAccessToken = false;
+    const [existingProfile, setExistingProfile] = useState(false);
 
     WebBrowser.maybeCompleteAuthSession();
 
@@ -49,6 +47,27 @@ const PromptScreen = () => {
     );
 
     useEffect(() => {
+        var docSnap;
+        const checkDocExist = async () => {
+            setExistingProfile(false);
+            const docRef = doc(db, "users", auth.currentUser?.email);
+            docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setExistingProfile(true);
+                setName(docSnap.get("username"))
+                setBio(docSnap.get("userBio"))
+                setPfp(docSnap.get("userPfp"))
+                setPrevPfp(docSnap.get("userPfp"))
+                // setImageUrl(docSnap.get("ImageUrl"))
+            } else {
+                // docSnap.data() will be undefined in this case
+                console.log("No such document!");
+            }
+        }
+        checkDocExist();
+    }, []);
+
+    useEffect(() => {
         const getSpotifyData = async () => {
             if (response?.type === 'success') {
                 const { code} = response.params;
@@ -68,67 +87,13 @@ const PromptScreen = () => {
         // console.log("Hello@@@@@@@@@@@@@@", response?.type);
     }, [response]);
 
-    // const exchangeCodeForAccessToken = async (code) => {
-    //     try {
-    //         const response = await axios.post(
-    //             'https://accounts.spotify.com/api/token',
-    //             new URLSearchParams({
-    //                 code: code,
-    //                 redirect_uri: redirectUri,
-    //                 grant_type: 'authorization_code'
-    //             }).toString(),
-    //             {
-    //                 headers: {
-    //                     'Content-Type': 'application/x-www-form-urlencoded',
-    //                     'Authorization': 'Basic ' + encode(`${clientId}:${clientSecret}`)
-    //                 }
-    //             },
-    //         );
-    //
-    //         const { access_token } = await response.data;
-    //
-    //         // Use the access_token for Spotify API requests
-    //         console.log('Access Token:', access_token);
-    //         gotAccessToken = true;
-    //         await getUserProfile(access_token);
-    //         await getUsersTopItem(access_token);
-    //     } catch (error) {
-    //         console.error('Error exchanging authorization code for access token:', error);
-    //     }
-    // };
-
-    // const getUserProfile = async (token) => {
-    //     var userData = [];
-    //     const response = await axios.get('https://api.spotify.com/v1/me', {
-    //         headers: {
-    //             'Authorization': `Bearer ${token}`,
-    //         }
-    //     })
-    //     const userProfile = response.data;
-    //     userData.push(userProfile["country"])
-    //     userData.push(userProfile["followers"]["total"])
-    //     userData.push(userProfile["display_name"])
-    //     userData.push(userProfile["email"])
-    //     setUserProfileData(userData);
-    // }
-    //
-    // const getUsersTopItem = async (token) => {
-    //     var topItems = [];
-    //     const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
-    //         headers: {
-    //             'Authorization': `Bearer ${token}`,
-    //         }
-    //     })
-    //     for (let item of response.data["items"]) {
-    //         topItems.push(item["name"]);
-    //     }
-    //
-    //     setUserTopItems(topItems);
-    // }
-
     const handleQuit = () => {
-        auth.currentUser.delete();
-        navigation.replace("Login");
+        if (existingProfile) {
+            navigation.replace("Home");
+        } else {
+            auth.currentUser.delete();
+            navigation.replace("Login");
+        }
     }
 
     //gets a list of concert performers from firebase
@@ -139,24 +104,50 @@ const PromptScreen = () => {
     //saves user data to firebase firestore
     const handleSave = async () => {
 
-        console.log(name, bio, userTopItems, userProfileData)
-        await uploadImageToFirebase(pfp);
-        var url = null;
-        if (pfp != null) {
-            const imageUri = pfp;
-            const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-            url = await getImageUrl(fileName);
+        //TODO
+        // handle if it is existing Profile
+        // if existing profile ==> update the data doc / also deleting previous image in the storage
+        // if new profile ==> create the data doc
+        if (existingProfile) {
+            console.log("handle save ex")
+            var url = null;
+            const fileName = pfp.substring(pfp.lastIndexOf('/') + 1);
+            if (pfp !== prevPfp) {
+                await uploadImageToFirebase(pfp);
+                if (pfp != null) {
+                    url = await getImageUrl(fileName);
+                }
+                const prevFileName = prevPfp.substring(prevPfp.lastIndexOf('/') + 1);
+                await deleteImage(prevFileName)
+            }
+            const docRef = doc(db, "users", auth.currentUser?.email);
+            await updateDoc(docRef, {
+                username: name,
+                userBio: bio,
+                userPfp: pfp,
+                topArtists: userTopItems,
+                userSpotifyData: userProfileData,
+                ImageUrl: url
+            })
+        } else {
+            console.log("handle save no ex")
+            console.log(name, bio, userTopItems, userProfileData)
+            await uploadImageToFirebase(pfp);
+            var url = null;
+            if (pfp != null) {
+                const fileName = pfp.substring(pfp.lastIndexOf('/') + 1);
+                url = await getImageUrl(fileName);
+            }
+            const docRef = doc(db, "users", auth.currentUser?.email);
+            await setDoc(docRef, {
+                username: name,
+                userBio: bio,
+                userPfp: pfp,
+                topArtists: userTopItems,
+                userSpotifyData: userProfileData,
+                ImageUrl: url
+            });
         }
-        const docRef = doc(db, "users", auth.currentUser?.email);
-        await setDoc(docRef, {
-            username: name,
-            userBio: bio,
-            userPfp: pfp, // no need anymore
-            topArtists: userTopItems,
-            userSpotifyData: userProfileData,
-            ImageUrl: url
-        });
-
         navigation.replace("Home")
     }
 
@@ -171,6 +162,7 @@ const PromptScreen = () => {
 
         // if (!imageGot.canceled) {
         setPfp(imageGot.assets[0].uri);
+
         // }
     }
 
@@ -195,7 +187,7 @@ const PromptScreen = () => {
         <View style={(styles.container)}>
             <View style={styles.userProfile}>
                 <TextInput
-                    placeholder="name"
+                    placeholder={name}
                     value={name}
                     onChangeText={text => setName(text)}
                     style={styles.input}
@@ -207,7 +199,7 @@ const PromptScreen = () => {
                         numberOfLines={5}
                         textAlignVertical="top"
                         textAlign="left"
-                        placeholder='bio'
+                        placeholder={bio}
                         value={bio}
                         onChangeText={text => setBio(text)}
                         style={styles.bioInput}

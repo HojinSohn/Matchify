@@ -67,6 +67,9 @@ const HomeScreen = () => {
         setDataLoaded(!dataLoaded);
     }
 
+    const editProfile = async () => {
+        navigation.replace("Prompt");
+    }
 
     const handleSignOut = () => {
         auth
@@ -91,6 +94,10 @@ const HomeScreen = () => {
             {showProfile && (
                 <UserProfile userData={userData}></UserProfile>
             )}
+
+            <TouchableOpacity onPress={editProfile} style={styles.button}>
+                <Text style={styles.buttonText}>{'Edit Profile'}</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
                 onPress={handleSignOut}

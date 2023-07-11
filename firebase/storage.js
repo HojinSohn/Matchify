@@ -1,4 +1,4 @@
-import {getDownloadURL, ref} from "firebase/storage";
+import {getDownloadURL, ref, deleteObject} from "firebase/storage";
 import {storage} from "./firebase";
 
 const getImageUrl = async (fileName) => {
@@ -16,4 +16,10 @@ const getImageUrl = async (fileName) => {
     }
 };
 
-export {getImageUrl};
+const deleteImage = async (fileName) => {
+    const imageRef = ref(storage, `images/${fileName}`);
+    await deleteObject(imageRef);
+    console.log("delete complete, ", fileName);
+}
+
+export {getImageUrl, deleteImage};
