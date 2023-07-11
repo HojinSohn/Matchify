@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import {Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {auth, db} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import {doc, getDoc, getDocs, collection} from "firebase/firestore";
-import {ref, getDownloadURL} from "firebase/storage";
-import ProfilePicture from "../components/ProfilePicture";
 import UserPage from "../components/UserPage";
-import {getImageUrl} from "../firebase/storage"
 import UserProfile from "../components/UserProfile";
 
 const HomeScreen = () => {

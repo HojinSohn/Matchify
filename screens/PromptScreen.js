@@ -12,6 +12,8 @@ import axios from 'axios';
 import { encode } from 'base-64';
 import { Entypo } from '@expo/vector-icons';
 import {getImageUrl} from "../firebase/storage";
+import {exchangeCodeForAccessToken, clientId, redirectUri} from "../api/token";
+import {getUserProfile, getUsersTopItem} from "../api/api";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -20,11 +22,10 @@ const PromptScreen = () => {
     const [bio, setBio] = useState(null);
     const [userProfileData, setUserProfileData] = useState(null);
     const [userTopItems, setUserTopItems] = useState(null);
-    const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
-    const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
-    const redirectUri = 'exp://192.168.1.20:19000/--/';
+    // const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
+    // const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
+    // const redirectUri = 'exp://192.168.1.20:19000/--/';
     var gotAccessToken = false;
-    // const [accessToken, setAccessToken] = useState(null);
 
     WebBrowser.maybeCompleteAuthSession();
 
@@ -48,73 +49,82 @@ const PromptScreen = () => {
     );
 
     useEffect(() => {
-        console.log("Hello@@@@@@@@@@@@@@", response?.type);
-        if (response?.type === 'success') {
-            const { code} = response.params;
-            console.log(code);
-            exchangeCodeForAccessToken(code);
-
-            // Use the access token to make a request to the Spotify API
+        const getSpotifyData = async () => {
+            if (response?.type === 'success') {
+                const { code} = response.params;
+                console.log(code);
+                const access_token = await exchangeCodeForAccessToken(code);
+                gotAccessToken = true;
+                const profileData = await getUserProfile(access_token);
+                setUserProfileData(profileData);
+                console.log("wow")
+                const topItems = await getUsersTopItem(access_token);
+                setUserTopItems(topItems);
+                console.log("wowwww")
+                // Use the access token to make a request to the Spotify API
+            }
         }
+        getSpotifyData();
+        // console.log("Hello@@@@@@@@@@@@@@", response?.type);
     }, [response]);
 
-    const exchangeCodeForAccessToken = async (code) => {
-        try {
-            const response = await axios.post(
-                'https://accounts.spotify.com/api/token',
-                new URLSearchParams({
-                    code: code,
-                    redirect_uri: redirectUri,
-                    grant_type: 'authorization_code'
-                }).toString(),
-                {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Authorization': 'Basic ' + encode(`${clientId}:${clientSecret}`)
-                    }
-                },
-            );
+    // const exchangeCodeForAccessToken = async (code) => {
+    //     try {
+    //         const response = await axios.post(
+    //             'https://accounts.spotify.com/api/token',
+    //             new URLSearchParams({
+    //                 code: code,
+    //                 redirect_uri: redirectUri,
+    //                 grant_type: 'authorization_code'
+    //             }).toString(),
+    //             {
+    //                 headers: {
+    //                     'Content-Type': 'application/x-www-form-urlencoded',
+    //                     'Authorization': 'Basic ' + encode(`${clientId}:${clientSecret}`)
+    //                 }
+    //             },
+    //         );
+    //
+    //         const { access_token } = await response.data;
+    //
+    //         // Use the access_token for Spotify API requests
+    //         console.log('Access Token:', access_token);
+    //         gotAccessToken = true;
+    //         await getUserProfile(access_token);
+    //         await getUsersTopItem(access_token);
+    //     } catch (error) {
+    //         console.error('Error exchanging authorization code for access token:', error);
+    //     }
+    // };
 
-            const { access_token } = await response.data;
-
-            // Use the access_token for Spotify API requests
-            console.log('Access Token:', access_token);
-            gotAccessToken = true;
-            await getUserProfile(access_token);
-            await getUsersTopItem(access_token);
-        } catch (error) {
-            console.error('Error exchanging authorization code for access token:', error);
-        }
-    };
-
-    const getUserProfile = async (token) => {
-        var userData = [];
-        const response = await axios.get('https://api.spotify.com/v1/me', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            }
-        })
-        const userProfile = response.data;
-        userData.push(userProfile["country"])
-        userData.push(userProfile["followers"]["total"])
-        userData.push(userProfile["display_name"])
-        userData.push(userProfile["email"])
-        setUserProfileData(userData);
-    }
-
-    const getUsersTopItem = async (token) => {
-        var topItems = [];
-        const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            }
-        })
-        for (let item of response.data["items"]) {
-            topItems.push(item["name"]);
-        }
-
-        setUserTopItems(topItems);
-    }
+    // const getUserProfile = async (token) => {
+    //     var userData = [];
+    //     const response = await axios.get('https://api.spotify.com/v1/me', {
+    //         headers: {
+    //             'Authorization': `Bearer ${token}`,
+    //         }
+    //     })
+    //     const userProfile = response.data;
+    //     userData.push(userProfile["country"])
+    //     userData.push(userProfile["followers"]["total"])
+    //     userData.push(userProfile["display_name"])
+    //     userData.push(userProfile["email"])
+    //     setUserProfileData(userData);
+    // }
+    //
+    // const getUsersTopItem = async (token) => {
+    //     var topItems = [];
+    //     const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
+    //         headers: {
+    //             'Authorization': `Bearer ${token}`,
+    //         }
+    //     })
+    //     for (let item of response.data["items"]) {
+    //         topItems.push(item["name"]);
+    //     }
+    //
+    //     setUserTopItems(topItems);
+    // }
 
     const handleQuit = () => {
         auth.currentUser.delete();
@@ -131,11 +141,12 @@ const PromptScreen = () => {
 
         console.log(name, bio, userTopItems, userProfileData)
         await uploadImageToFirebase(pfp);
-
-        const imageUri = pfp;
-        const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-        const url = await getImageUrl(fileName);
-
+        var url = null;
+        if (pfp != null) {
+            const imageUri = pfp;
+            const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+            url = await getImageUrl(fileName);
+        }
         const docRef = doc(db, "users", auth.currentUser?.email);
         await setDoc(docRef, {
             username: name,
