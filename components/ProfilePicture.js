@@ -1,8 +1,7 @@
-import { Image } from 'react-native'
-
+import {Image} from 'react-native'
 function ProfilePicture({ selectedImage }) {
 
-    if (selectedImage === null) {
+    if (selectedImage === null || selectedImage === undefined) {
         return (
             <Image
                 source={require('../assets/default_pfp.jpeg')}

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View, Image} from 'react-native'
-import {auth, db, colRef, storage} from "../firebase";
+import {auth, db, colRef, storage} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
@@ -11,6 +11,7 @@ import * as WebBrowser from 'expo-web-browser';
 import axios from 'axios';
 import { encode } from 'base-64';
 import { Entypo } from '@expo/vector-icons';
+import {getImageUrl} from "../firebase/storage";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -129,15 +130,22 @@ const PromptScreen = () => {
     const handleSave = async () => {
 
         console.log(name, bio, userTopItems, userProfileData)
+        await uploadImageToFirebase(pfp);
+
+        const imageUri = pfp;
+        const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+        const url = await getImageUrl(fileName);
+
         const docRef = doc(db, "users", auth.currentUser?.email);
         await setDoc(docRef, {
             username: name,
             userBio: bio,
-            userPfp: pfp,
+            userPfp: pfp, // no need anymore
             topArtists: userTopItems,
-            userSpotifyData: userProfileData
+            userSpotifyData: userProfileData,
+            ImageUrl: url
         });
-        await uploadImageToFirebase(pfp);
+
         navigation.replace("Home")
     }
 

@@ -1,17 +1,20 @@
 import React, {useEffect, useState} from 'react'
-import {Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import {auth, db, storage} from "../firebase";
+import {Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {auth, db} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import {doc, getDoc, getDocs, collection} from "firebase/firestore";
 import {ref, getDownloadURL} from "firebase/storage";
 import ProfilePicture from "../components/ProfilePicture";
+import UserPage from "../components/UserPage";
+import {getImageUrl} from "../firebase/storage"
+import UserProfile from "../components/UserProfile";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
     const [showProfile, setShowProfile] = useState(false);
     const docRef = doc(db, "users", auth.currentUser?.email);
     const [userData, setUserData] = useState(null);
-    const [imageUrl, setImageUrl] = useState(null);
+    // const [imageUrl, setImageUrl] = useState(null);
     const [allUserData, setAllUserData] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
 
@@ -41,20 +44,16 @@ const HomeScreen = () => {
     }, []);
 
     useEffect(() => {
-        const getImage = async() => {
-            if (userData) {
-                const imageUri = userData["userPfp"];
-                const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-                const imageRef = ref(storage, `images/${fileName}`);
-                let url;
-                const downloadURL = await getDownloadURL(imageRef).then((x) => {
-                    url = x;
-                    console.log("WTFFF, ", url);
-                });
-                setImageUrl(url);
-            }
-        }
-        getImage();
+        // const getImage = async() => {
+        //     if (userData) {
+        //         const imageUri = userData["userPfp"];
+        //         const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+        //         const url = await getImageUrl(fileName);
+        //         setImageUrl(url);
+        //         console.log("Homepage url check", url);
+        //     }
+        // }
+        // getImage();
         const getAllData = async() => {
             const userDocs = await getDocs(collection(db, "users"));
             const temp = []
@@ -71,16 +70,6 @@ const HomeScreen = () => {
         setDataLoaded(!dataLoaded);
     }
 
-    const getImageFromFirebase = async (imageUri) => {
-        try {
-            const fileName = imageUri.substring(imageUri.lastIndexOf('/')+1);
-            const imageRef = ref(storage, `images/${fileName}`);
-
-            const downloadURL = await getDownloadURL(imageRef);
-        } catch (error) {
-            console.log('Error uploading image:', error);
-        }
-    };
 
     const handleSignOut = () => {
         auth
@@ -97,29 +86,13 @@ const HomeScreen = () => {
         setShowProfile(!showProfile);
     }
 
-    const profiles = () => {
-        const renderViews = allUserData.map((item, index) => (
-            <View key={index}>
-                <Text>{item}</Text>
-            </View>
-        ));
-        return renderViews;
-    }
-
     return (
         <View style={(styles.container)}>
             <TouchableOpacity onPress={showProfileToggle} style={styles.button}>
                 <Text style={styles.buttonText}>{showProfile ? 'Hide Profile' : 'Show Profile'}</Text>
             </TouchableOpacity>
             {showProfile && (
-                <View>
-                    <Text>Email: {auth.currentUser?.email}</Text>
-                    <Text>username: {userData["username"]}</Text>
-                    <Text>userBio: {userData["userBio"]}</Text>
-                    <Text>Top Artist: {userData["topArtists"].toString()}</Text>
-                    <Text>Spotify Data: {userData["userSpotifyData"].toString()}</Text>
-                    <Image source={{uri: imageUrl}} style={styles.profileImage}/>
-                </View>
+                <UserProfile userData={userData}></UserProfile>
             )}
 
             <TouchableOpacity
@@ -132,23 +105,7 @@ const HomeScreen = () => {
                 <Text style={styles.buttonText}>{dataLoaded ? 'Hide Data' : 'Show Data'}</Text>
             </TouchableOpacity>
             {dataLoaded && (
-                allUserData.map((item, index) => (
-                    <View key={index}>
-                        <Text>------------------------</Text>
-                        <Text>username: {item["username"]}</Text>
-                        <Text>userBio: {item["userBio"]}</Text>
-                        <Text>Top Artist: {item["topArtists"]?.toString()}</Text>
-                        <Text>Spotify Data: {item["userSpotifyData"]?.toString()}</Text>
-                        <Text>------------------------</Text>
-                    </View>
-                ))
-                // <View>
-                //     <Text>username: {allUserData[1]["username"]}</Text>
-                //     <Text>userBio: {allUserData[1]["userBio"]}</Text>
-                //     <Text>Top Artist: {allUserData[1]["topArtists"].toString()}</Text>
-                //     <Text>Spotify Data: {allUserData[1]["userSpotifyData"].toString()}</Text>
-                //     <Image source={{uri: imageUrl}} style={styles.profileImage}/>
-                // </View>
+                <UserPage allUserData ={allUserData} />
             )}
         </View>
     )
