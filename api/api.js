@@ -4,7 +4,7 @@ import {getToken} from "./token";
 var token;
 
 const getUserProfile = async () => {
-    token = getToken();
+    token = await getToken();
     var userData = [];
     const response = await axios.get('https://api.spotify.com/v1/me', {
         headers: {
@@ -21,7 +21,7 @@ const getUserProfile = async () => {
 }
 
 const getUsersTopItem = async () => {
-    token = getToken();
+    token = await getToken();
     var topItems = [];
     const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
         headers: {
@@ -36,7 +36,7 @@ const getUsersTopItem = async () => {
 }
 
 const getArtistInfo = async (id) => {
-    token = getToken();
+    token = await getToken();
     // console.log("getArtistInfo token check: ", token);
     var info = {};
     try {
@@ -50,6 +50,7 @@ const getArtistInfo = async (id) => {
         info.name = response.data["name"]
     } catch (error) {
         console.log("Error getArtistInfo token check: ", token);
+        console.log("Error getArtistInfo id check: ", id);
         console.log("Error getArtistInfo: ", error);
     }
     return info;

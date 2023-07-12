@@ -35,19 +35,30 @@ function ArtistProfiles({userData}) {
         fetchData();
     }, [userData]);
 
-    return (<SafeAreaView>
+    return (<SafeAreaView style={styles.container}>
         <ScrollView style={{backgroundColor: '#000000', padding: 15}}>
-            {(infos !== null && infos !== undefined) ? (
-                infos.map((info, index) => {
-                    return (
-                        <View key={index}>
-                            <ArtistProfile artistInfo={info}> </ArtistProfile>
-                        </View>
-                    );
+            {
+                (infos !== null && infos !== undefined) ? (
+                    infos.map((info, index) => {
+                        return (
+                            <View key={index} style={styles.infoContainer}>
+                                <Text style={styles.infoText}>Artist Info:</Text>
+                                <ArtistProfile artistInfo={info} />
+                            </View>
+                        );
                 })
+
+                // (infos !== null && infos !== undefined) ? (
+                // infos.map((info, index) => {
+                //     return (
+                //         <View key={index}>
+                //             <ArtistProfile artistInfo={info}> </ArtistProfile>
+                //         </View>
+                //     );
+                // })
             ) : (
                 <View>
-                    {/* Handle the case when infos is null */}
+                    {/*return (<Text>No Info</Text>)*/}
                 </View>
             )}
         </ScrollView>
@@ -79,6 +90,20 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    container: {
+        flex: 1,
+        backgroundColor: '#000000',
+        padding: 15,
+    },
+    infoContainer: {
+        marginBottom: 20,
+    },
+    infoText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 8,
     },
 })
 
