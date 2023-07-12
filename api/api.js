@@ -1,6 +1,10 @@
 import axios from "axios";
+import {getToken} from "./token";
 
-const getUserProfile = async (token) => {
+var token;
+
+const getUserProfile = async () => {
+    token = getToken();
     var userData = [];
     const response = await axios.get('https://api.spotify.com/v1/me', {
         headers: {
@@ -16,7 +20,8 @@ const getUserProfile = async (token) => {
     // setUserProfileData(userData);
 }
 
-const getUsersTopItem = async (token) => {
+const getUsersTopItem = async () => {
+    token = getToken();
     var topItems = [];
     const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
         headers: {
@@ -24,10 +29,30 @@ const getUsersTopItem = async (token) => {
         }
     })
     for (let item of response.data["items"]) {
-        topItems.push(item["name"]);
+        topItems.push(item["name"] + "," + item["id"]);
     }
     return topItems;
     // setUserTopItems(topItems);
 }
 
-export {getUserProfile, getUsersTopItem}
+const getArtistInfo = async (id) => {
+    token = getToken();
+    // console.log("getArtistInfo token check: ", token);
+    var info = {};
+    try {
+        const response = await axios.get(`https://api.spotify.com/v1/artists/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        })
+        info.genres = response.data["genres"]
+        info.imageUrl = response.data["images"][0]["url"]
+        info.name = response.data["name"]
+    } catch (error) {
+        console.log("Error getArtistInfo token check: ", token);
+        console.log("Error getArtistInfo: ", error);
+    }
+    return info;
+}
+
+export {getUserProfile, getUsersTopItem, getArtistInfo}

@@ -5,6 +5,7 @@ import {useNavigation} from "@react-navigation/core";
 import {doc, getDoc, getDocs, collection} from "firebase/firestore";
 import UserPage from "../components/UserPage";
 import UserProfile from "../components/UserProfile";
+import {getToken} from "../api/token";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -21,6 +22,8 @@ const HomeScreen = () => {
                 navigation.replace('Login');
             }
         });
+
+        getToken();
 
         const getUserData = async() => {
             try {
@@ -120,20 +123,20 @@ export default HomeScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
+        justifyContent: 'flex-start',
+        alignItems: 'center',
     },
     button: {
         backgroundColor: '#0782F9',
-        width: '60%',
+        width: '100%',// 40
         padding: 15,
         borderRadius: 10,
         alignItems: 'center'
     },
     buttonText: {
         color: 'white',
-        fontWeight: '700',
-        fontSize: 16,
+        fontWeight: '500',
+        fontSize: 10,
     },
     profileImage: {
         width: 150,

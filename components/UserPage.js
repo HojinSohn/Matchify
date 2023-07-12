@@ -11,6 +11,7 @@ function UserPage({ allUserData }) {
                     return (
                         <View key={index}>
                             <UserProfile userData={item}> </UserProfile>
+                            {/*<UserProfile userData={allUserData[0]}> </UserProfile>*/}
                         </View>
                     );
                 })}

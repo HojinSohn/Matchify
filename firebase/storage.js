@@ -12,7 +12,7 @@ const getImageUrl = async (fileName) => {
         return (url);
 
     } catch (error) {
-        console.log('Error uploading image:', error);
+        console.log('Error getting URL:', error);
     }
 };
 

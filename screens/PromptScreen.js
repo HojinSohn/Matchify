@@ -21,7 +21,7 @@ const PromptScreen = () => {
     const [userProfileData, setUserProfileData] = useState(null);
     const [userTopItems, setUserTopItems] = useState(null);
     const [prevPfp, setPrevPfp] = useState(null);
-    // const [imageUrl, setImageUrl] = useState(null);
+    const [prevImageUrl, setPrevImageUrl] = useState(null);
     var gotAccessToken = false;
     const [existingProfile, setExistingProfile] = useState(false);
 
@@ -58,7 +58,9 @@ const PromptScreen = () => {
                 setBio(docSnap.get("userBio"))
                 setPfp(docSnap.get("userPfp"))
                 setPrevPfp(docSnap.get("userPfp"))
-                // setImageUrl(docSnap.get("ImageUrl"))
+                setPrevImageUrl(docSnap.get("ImageUrl"))
+                setUserTopItems(docSnap.get("topArtists"))
+                setUserProfileData(docSnap.get("userSpotifyData"))
             } else {
                 // docSnap.data() will be undefined in this case
                 console.log("No such document!");
@@ -72,12 +74,13 @@ const PromptScreen = () => {
             if (response?.type === 'success') {
                 const { code} = response.params;
                 console.log(code);
-                const access_token = await exchangeCodeForAccessToken(code);
+                // const access_token = await exchangeCodeForAccessToken(code); // it sets token in token.js
+                await exchangeCodeForAccessToken(code);
                 gotAccessToken = true;
-                const profileData = await getUserProfile(access_token);
+                const profileData = await getUserProfile();
                 setUserProfileData(profileData);
                 console.log("wow")
-                const topItems = await getUsersTopItem(access_token);
+                const topItems = await getUsersTopItem();
                 setUserTopItems(topItems);
                 console.log("wowwww")
                 // Use the access token to make a request to the Spotify API
@@ -103,14 +106,9 @@ const PromptScreen = () => {
 
     //saves user data to firebase firestore
     const handleSave = async () => {
-
-        //TODO
-        // handle if it is existing Profile
-        // if existing profile ==> update the data doc / also deleting previous image in the storage
-        // if new profile ==> create the data doc
         if (existingProfile) {
             console.log("handle save ex")
-            var url = null;
+            var url = prevImageUrl;
             const fileName = pfp.substring(pfp.lastIndexOf('/') + 1);
             if (pfp !== prevPfp) {
                 await uploadImageToFirebase(pfp);
