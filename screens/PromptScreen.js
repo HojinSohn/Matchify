@@ -191,7 +191,7 @@ const PromptScreen = () => {
                     style={styles.input}
                 />
                 <View style={styles.bioContainer}>
-                    <ProfilePicture selectedImage={pfp} />
+                    <ProfilePicture selectedImage={pfp} size={300} />
                     <TextInput
                         multiline={true}
                         numberOfLines={5}
@@ -252,15 +252,15 @@ export default PromptScreen
 const styles = StyleSheet.create({
     bioInput: {
         backgroundColor: 'white',
-        width: 170,
-        height: 170,
+        width: 300,
+        height: 130,
         borderRadius: 10,
         marginHorizontal: 10,
     },
     bioContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: "row",
+        flexDirection: "column",
     },
     userProfile: {
         justifyContent: 'center',

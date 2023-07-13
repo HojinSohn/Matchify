@@ -91,15 +91,15 @@ const HomeScreen = () => {
 
     return (
         <View style={(styles.container)}>
-            <TouchableOpacity onPress={showProfileToggle} style={styles.button}>
-                <Text style={styles.buttonText}>{showProfile ? 'Hide Profile' : 'Show Profile'}</Text>
-            </TouchableOpacity>
-            {showProfile && (
-                <UserProfile userData={userData}></UserProfile>
-            )}
+            {/*<TouchableOpacity onPress={showProfileToggle} style={styles.button}>*/}
+            {/*    <Text style={styles.buttonText}>{showProfile ? 'Hide Profile' : 'Show Profile'}</Text>*/}
+            {/*</TouchableOpacity>*/}
+            {/*{showProfile && (*/}
+            {/*    <UserProfile userData={userData}></UserProfile>*/}
+            {/*)}*/}
 
             <TouchableOpacity onPress={editProfile} style={styles.button}>
-                <Text style={styles.buttonText}>{'Edit Profile'}</Text>
+                <Text style={styles.buttonText}>{'Show / Edit Profile'}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
