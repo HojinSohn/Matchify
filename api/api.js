@@ -21,15 +21,19 @@ const getUserProfile = async () => {
 }
 
 const getUsersTopItem = async () => {
-    token = await getToken();
-    var topItems = [];
-    const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
-        headers: {
-            'Authorization': `Bearer ${token}`,
+    try {
+        token = await getToken();
+        var topItems = [];
+        const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        })
+        for (let item of response.data["items"]) {
+            topItems.push(item["name"] + "," + item["id"]);
         }
-    })
-    for (let item of response.data["items"]) {
-        topItems.push(item["name"] + "," + item["id"]);
+    } catch (error) {
+        console.log("What error in getUserTopItem, ", error);
     }
     return topItems;
     // setUserTopItems(topItems);
@@ -56,4 +60,41 @@ const getArtistInfo = async (id) => {
     return info;
 }
 
-export {getUserProfile, getUsersTopItem, getArtistInfo}
+const getTrackInfo = async (id) => {
+    token = await getToken();
+    // console.log("getArtistInfo token check: ", token);
+    var info = {};
+    try {
+        const response = await axios.get(`https://api.spotify.com/v1/tracks/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        })
+        info.imageUrl = response.data["album"]["images"][0]["url"]
+        info.name = response.data["name"]
+        info.artist = response.data["artists"][0]["name"]
+        info.artistID = response.data["artists"][0]["id"]
+    } catch (error) {
+        console.log("Error getTrackInfo token check: ", token);
+        console.log("Error getTrackInfo id check: ", id);
+        console.log("Error getTrackInfo: ", error);
+    }
+    return info;
+}
+
+const getUsersTopTrack = async () => {
+    token = await getToken();
+    var topItems = [];
+    const response = await axios.get('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10&offset=0', {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
+    })
+    for (let item of response.data["items"]) {
+        topItems.push(item["name"] + "," + item["id"]);
+    }
+    return topItems;
+    // setUserTopItems(topItems);
+}
+
+export {getUserProfile, getUsersTopItem, getArtistInfo, getUsersTopTrack, getTrackInfo}

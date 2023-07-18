@@ -11,7 +11,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { Entypo } from '@expo/vector-icons';
 import {deleteImage, getImageUrl} from "../firebase/storage";
 import {exchangeCodeForAccessToken, clientId, redirectUri} from "../api/token";
-import {getUserProfile, getUsersTopItem} from "../api/api";
+import {getUserProfile, getUsersTopItem, getUsersTopTrack} from "../api/api";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -20,6 +20,7 @@ const PromptScreen = () => {
     const [bio, setBio] = useState('');
     const [userProfileData, setUserProfileData] = useState(null);
     const [userTopItems, setUserTopItems] = useState(null);
+    const [userTopTracks, setUserTopTracks] = useState(null);
     const [prevPfp, setPrevPfp] = useState(null);
     const [prevImageUrl, setPrevImageUrl] = useState(null);
     var gotAccessToken = false;
@@ -36,8 +37,7 @@ const PromptScreen = () => {
     const [request, response, promptAsync] = useAuthRequest(
         {
             clientId: clientId,
-            scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'user-read-private',
-                'user-top-read', 'playlist-read-private'],
+            scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'user-read-private', 'playlist-read-private'],
             // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
             // this must be set to false
             usePKCE: false,
@@ -71,19 +71,28 @@ const PromptScreen = () => {
 
     useEffect(() => {
         const getSpotifyData = async () => {
-            if (response?.type === 'success') {
-                const { code} = response.params;
-                console.log(code);
-                // const access_token = await exchangeCodeForAccessToken(code); // it sets token in token.js
-                await exchangeCodeForAccessToken(code);
-                gotAccessToken = true;
-                const profileData = await getUserProfile();
-                setUserProfileData(profileData);
-                console.log("wow")
-                const topItems = await getUsersTopItem();
-                setUserTopItems(topItems);
-                console.log("wowwww")
-                // Use the access token to make a request to the Spotify API
+            try {
+                if (response?.type === 'success') {
+                    const {code} = response.params;
+                    console.log(code);
+                    // const access_token = await exchangeCodeForAccessToken(code); // it sets token in token.js
+                    await exchangeCodeForAccessToken(code);
+                    gotAccessToken = true;
+                    const profileData = await getUserProfile();
+                    setUserProfileData(profileData);
+                    // console.log("wow")
+
+                    const topItems = await getUsersTopItem();
+                    setUserTopItems(topItems);
+
+                    // console.log("wowwww")
+
+                    const topTracks = await getUsersTopTrack();
+                    setUserTopTracks(topTracks);
+                    // Use the access token to make a request to the Spotify API
+                }
+            } catch (error) {
+                console.log("Error in spotify data processing:::: ", error);
             }
         }
         getSpotifyData();
@@ -125,11 +134,12 @@ const PromptScreen = () => {
                 userPfp: pfp,
                 topArtists: userTopItems,
                 userSpotifyData: userProfileData,
+                topTracks: userTopTracks,
                 ImageUrl: url
             })
         } else {
             console.log("handle save no ex")
-            console.log(name, bio, userTopItems, userProfileData)
+            console.log(name, bio, userTopItems, userTopTracks, userProfileData)
             await uploadImageToFirebase(pfp);
             var url = null;
             if (pfp != null) {
@@ -142,6 +152,7 @@ const PromptScreen = () => {
                 userBio: bio,
                 userPfp: pfp,
                 topArtists: userTopItems,
+                topTracks: userTopTracks,
                 userSpotifyData: userProfileData,
                 ImageUrl: url
             });
