@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View, Image} from 'react-native'
-import {auth, db, colRef, storage} from "../firebase/firebase";
+import {auth, colRef, storage} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
@@ -12,6 +12,7 @@ import { Entypo } from '@expo/vector-icons';
 import {deleteImage, getImageUrl} from "../firebase/storage";
 import {exchangeCodeForAccessToken, clientId, redirectUri} from "../api/token";
 import {getUserProfile, getUsersTopItem, getUsersTopTrack} from "../api/api";
+import {getCurrentUserDoc} from "../firebase/firestore";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -50,7 +51,7 @@ const PromptScreen = () => {
         var docSnap;
         const checkDocExist = async () => {
             setExistingProfile(false);
-            const docRef = doc(db, "users", auth.currentUser?.email);
+            const docRef = getCurrentUserDoc();
             docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 setExistingProfile(true);
@@ -127,7 +128,7 @@ const PromptScreen = () => {
                 const prevFileName = prevPfp.substring(prevPfp.lastIndexOf('/') + 1);
                 await deleteImage(prevFileName)
             }
-            const docRef = doc(db, "users", auth.currentUser?.email);
+            const docRef = getCurrentUserDoc();
             await updateDoc(docRef, {
                 username: name,
                 userBio: bio,
@@ -146,7 +147,7 @@ const PromptScreen = () => {
                 const fileName = pfp.substring(pfp.lastIndexOf('/') + 1);
                 url = await getImageUrl(fileName);
             }
-            const docRef = doc(db, "users", auth.currentUser?.email);
+            const docRef = getCurrentUserDoc();
             await setDoc(docRef, {
                 username: name,
                 userBio: bio,

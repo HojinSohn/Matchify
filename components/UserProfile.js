@@ -22,7 +22,7 @@ function UserProfile({userData}) {
     }
 
     const chatPress = () => {
-
+        navigation.replace("ChatRoom", {param : userData})
     }
     return(
         <View style={styles.container}>

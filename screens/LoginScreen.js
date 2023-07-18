@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/core'
 import React, {useState, useEffect} from 'react'
 import {KeyboardAvoidingView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View} from 'react-native'
-import {auth, db, provider} from '../firebase/firebase'
+import {auth, provider} from '../firebase/firebase'
 import {deleteUser} from "firebase/auth"
 
 import {doc, getDoc} from "firebase/firestore";

@@ -1,16 +1,17 @@
 import React, {useEffect, useState} from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import {auth, db} from "../firebase/firebase";
+import {auth} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import {doc, getDoc, getDocs, collection} from "firebase/firestore";
 import UserPage from "../components/UserPage";
 import UserProfile from "../components/UserProfile";
 import {getToken} from "../api/token";
+import {getAllUserData, getCurrentUserData, getCurrentUserDoc} from "../firebase/firestore";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
     const [showProfile, setShowProfile] = useState(false);
-    const docRef = doc(db, "users", auth.currentUser?.email);
+    // const docRef = getCurrentUserDoc();
     const [userData, setUserData] = useState(null);
     // const [imageUrl, setImageUrl] = useState(null);
     const [allUserData, setAllUserData] = useState(null);
@@ -25,45 +26,40 @@ const HomeScreen = () => {
 
         getToken();
 
-        const getUserData = async() => {
-            try {
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    console.log("Document data:", docSnap.data());
-                    setUserData(docSnap.data());
-                } else {
-                    // doc.data() will be undefined in this case
-                    console.log("No such document!");
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        }
-        getUserData();
+        // const getUserData = async() => {
+        //     try {
+        //         const docSnap = await getDoc(docRef);
+        //
+        //         if (docSnap.exists()) {
+        //             console.log("Document data:", docSnap.data());
+        //             setUserData(docSnap.data());
+        //         } else {
+        //             // doc.data() will be undefined in this case
+        //             console.log("No such document!");
+        //         }
+        //     } catch (error) {
+        //         console.log(error)
+        //     }
+        // }
+        setUserData(getCurrentUserData()); //
+        // getUserData();
     }, []);
 
     useEffect(() => {
-        // const getImage = async() => {
-        //     if (userData) {
-        //         const imageUri = userData["userPfp"];
-        //         const fileName = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-        //         const url = await getImageUrl(fileName);
-        //         setImageUrl(url);
-        //         console.log("Homepage url check", url);
-        //     }
+        // const getAllData = async() => {
+        //     const userDocs = await getDocs(collection(db, "users"));
+        //     const temp = []
+        //     userDocs.forEach((doc) => {
+        //         temp.push(doc.data());
+        //     })
+        //     console.log("Hey this is user data, ", temp[0]["username"]);
+        //     setAllUserData(temp);
         // }
-        // getImage();
-        const getAllData = async() => {
-            const userDocs = await getDocs(collection(db, "users"));
-            const temp = []
-            userDocs.forEach((doc) => {
-                temp.push(doc.data());
-            })
-            console.log("Hey this is user data, ", temp[0]["username"]);
-            setAllUserData(temp);
+        const fetchUserData = async () => {
+            const allUserData = await getAllUserData();
+            setAllUserData(allUserData);
         }
-        getAllData();
+        fetchUserData();
     }, [userData]);
 
     const showAllUserData = async () => {
