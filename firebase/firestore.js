@@ -2,7 +2,8 @@ import {auth, db} from "./firebase"
 import {collection, doc, getDoc, getDocs} from "firebase/firestore";
 
 const getCurrentUserDoc = async () => {
-    return await doc(db, "users", auth.currentUser?.email);
+    const docRef = await doc(db, "users", auth.currentUser?.email);
+    return docRef;
 }
 const getCurrentUserData = async () => {
     const docRef = await doc(db, "users", auth.currentUser?.email);
@@ -10,6 +11,7 @@ const getCurrentUserData = async () => {
     if (docSnap.exists()) {
         return docSnap.data();
     }
+    return null;
 }
 
 const getAllUserData = async() => {

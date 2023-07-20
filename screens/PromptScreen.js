@@ -12,7 +12,7 @@ import { Entypo } from '@expo/vector-icons';
 import {deleteImage, getImageUrl} from "../firebase/storage";
 import {exchangeCodeForAccessToken, clientId, redirectUri} from "../api/token";
 import {getUserProfile, getUsersTopItem, getUsersTopTrack} from "../api/api";
-import {getCurrentUserDoc} from "../firebase/firestore";
+import {getCurrentUserData, getCurrentUserDoc} from "../firebase/firestore";
 
 const PromptScreen = () => {
     const navigation = useNavigation()
@@ -51,17 +51,18 @@ const PromptScreen = () => {
         var docSnap;
         const checkDocExist = async () => {
             setExistingProfile(false);
-            const docRef = getCurrentUserDoc();
+            const docRef = await getCurrentUserDoc();
             docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
+            const userData = await getCurrentUserData();
+            if (userData != null) {
                 setExistingProfile(true);
-                setName(docSnap.get("username"))
-                setBio(docSnap.get("userBio"))
-                setPfp(docSnap.get("userPfp"))
-                setPrevPfp(docSnap.get("userPfp"))
-                setPrevImageUrl(docSnap.get("ImageUrl"))
-                setUserTopItems(docSnap.get("topArtists"))
-                setUserProfileData(docSnap.get("userSpotifyData"))
+                setName(userData["username"])
+                setBio(userData["userBio"])
+                setPfp(userData["userPfp"])
+                setPrevPfp(userData["userPfp"])
+                setPrevImageUrl(userData["ImageUrl"])
+                setUserTopItems(userData["topArtists"])
+                setUserProfileData(userData["userSpotifyData"])
             } else {
                 // docSnap.data() will be undefined in this case
                 console.log("No such document!");
@@ -128,7 +129,7 @@ const PromptScreen = () => {
                 const prevFileName = prevPfp.substring(prevPfp.lastIndexOf('/') + 1);
                 await deleteImage(prevFileName)
             }
-            const docRef = getCurrentUserDoc();
+            const docRef = await getCurrentUserDoc();
             await updateDoc(docRef, {
                 username: name,
                 userBio: bio,

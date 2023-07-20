@@ -17,9 +17,13 @@ const getImageUrl = async (fileName) => {
 };
 
 const deleteImage = async (fileName) => {
-    const imageRef = ref(storage, `images/${fileName}`);
-    await deleteObject(imageRef);
-    console.log("delete complete, ", fileName);
+    try {
+        const imageRef = ref(storage, `images/${fileName}`);
+        await deleteObject(imageRef);
+        console.log("delete complete, ", fileName);
+    } catch (error) {
+        console.log("delete image failed: ", error)
+    }
 }
 
 export {getImageUrl, deleteImage};
