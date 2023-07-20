@@ -6,7 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
 import {doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
 import {ref, uploadBytes } from 'firebase/storage';
-import {makeRedirectUri, useAuthRequest} from "expo-auth-session";
+import {useAuthRequest} from "expo-auth-session";
 import * as WebBrowser from 'expo-web-browser';
 import { Entypo } from '@expo/vector-icons';
 import {deleteImage, getImageUrl} from "../firebase/storage";

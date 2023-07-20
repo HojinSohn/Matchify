@@ -9,98 +9,101 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import {getChatRoomRef, getCurrentUserData, getCurrentUserDoc, getMessages} from "../firebase/firestore";
-import {useEffect, useState} from "react";
+import {
+    getChatRoomRef,
+    getCurrentUserData,
+    getCurrentUserDoc,
+    getMessages,
+    getUserDataByName
+} from "../firebase/firestore";
+import {useCallback, useEffect, useState} from "react";
 import UserProfile from "../components/UserProfile";
-import {arrayUnion, setDoc, updateDoc} from "firebase/firestore";
+import {addDoc, arrayUnion, setDoc, updateDoc} from "firebase/firestore";
 import {useNavigation} from "@react-navigation/core";
+import {Bubble, GiftedChat} from "react-native-gifted-chat";
 
 const ChatRoomScreen = (data) => {
     const navigation = useNavigation();
     const chatUserData = data.route.params?.param;
+    const [username, setUsername] = useState(null);
+    const [userEmail, setUserEmail] = useState(null);
     const [messages, setMessages] = useState([{}]);
     const [input, setInput] = useState(null);
+    const [userProfileUrl, setUserProfileUrl] = useState(null);
+    const [youProfileUrl, setYouProfileUrl] = useState(null);
     var chatRoomRef = null;
-    const fetchMessageData = async () => {
-        if (chatRoomRef === null) {
-            await setChatRoomRef();
-        }
-        const messageData = await getMessages(chatRoomRef); // should change method
-        const messageArray = []
-        messageData.forEach(message => {
-            console.log(message["text"]);
-            messageArray.push(message);
-        })
-        setMessages(messageArray);
-    }
 
     const setChatRoomRef = async () => {
         const u1Data = await getCurrentUserData();
         const u1Name = u1Data["username"];
+        setUsername(u1Name);
+        setUserProfileUrl(u1Data["ImageUrl"])
         const u2Name = chatUserData["username"];
+        const u2Data = getUserDataByName(u2Name);
+        setYouProfileUrl(u2Data["ImageUrl"]);
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
     }
 
     useEffect(() => {
-        fetchMessageData();
-    }, [])
+        loadMessage();
+        setChatRoomRef();
+    }, []);
+
+    const saveMessage = async (messages) => {
+        console.log(messages)
+        if (chatRoomRef === null) {
+            await setChatRoomRef();
+        }
+        for (const message of messages) {
+            await updateDoc(chatRoomRef, {
+                messages: arrayUnion(message)
+            })
+        }
+    }
+
+    const loadMessage = async () => {
+            if (chatRoomRef === null) {
+                await setChatRoomRef();
+            }
+            const messageData = await getMessages(chatRoomRef); // should change method
+            const messageArray = []
+            messageData.forEach(message => {
+                console.log(message["text"]);
+                message["createdAt"] = message["createdAt"].toDate();
+                messageArray.unshift(message);
+            })
+            setMessages(messageArray);
+    }
+
+    const onSend = useCallback((messages = []) => {
+        saveMessage(messages);
+        setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+        console.log(messages);
+    }, []);
 
     const handleQuit = async () => {
         navigation.replace("Home");
     }
 
-    const handleSend = async () => {
-        if (chatRoomRef === null) {
-            await setChatRoomRef();
-        }
-        const senderData = await getCurrentUserData()
-        const sender = senderData["username"];
-        const messageToSend = {
-            text: input,
-            sender: sender,
-            timestamp: (new Date()).toLocaleString(),
-        }
-        await updateDoc(chatRoomRef, {
-            messages: arrayUnion(messageToSend)
-        })
-        setInput(null);
-        fetchMessageData();
-    }
-
     return (
-        <View style={{ flex:1 }}>
-            <TouchableOpacity
-                onPress={handleQuit}
-                style={styles.button}
-            >
+        <View style={{flex: 1}}>
+            <TouchableOpacity onPress={handleQuit}
+                            style={styles.button}>
                 <Text style={styles.buttonText}>Quit</Text>
             </TouchableOpacity>
-            <View style={styles.chatContainer}>
-                <FlatList
-                    data={messages}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({item}) => {
-                        // const formattedTime =  new Date(item.timestamp.seconds * 1000)
-                        return (
-                            <View style={styles.messageContainer}>
-                                <Text style={styles.sender}>{item.sender}</Text>
-                                <Text style={styles.messageText}>{item.text}</Text>
-                                <Text style={styles.timestamp}>{item.timestamp}</Text>
-                            </View>
-                        )
-                    }}
-                />
-            </View>
-            <View style={styles.inputContainer}>
-                <TextInput value={input}
-                           onChangeText={text => setInput(text)}
-                           style={styles.input}></TextInput>
-                <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-                    <Text style={styles.sendButtonText}>send</Text>
-                </TouchableOpacity>
-            </View>
+            <GiftedChat
+                messages={messages}
+                showAvatarForEveryMessage={true}
+                onSend={messages => onSend(messages)}
+                user={{
+                    _id: username,
+                    name: username,
+                    avatar: userProfileUrl
+                }}
+                renderBubble={props => <CustomBubble {...props} />}
+            />
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -124,9 +127,17 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 16,
     },
-    messageContainer: {
+    messageContainerMe: {
         padding: 8,
         borderRadius: 8,
+        alignItems: "flex-end",
+        backgroundColor: 'white',
+        marginBottom: 8,
+    },
+    messageContainerYou: {
+        padding: 8,
+        borderRadius: 8,
+        alignItems: "flex-start",
         backgroundColor: 'white',
         marginBottom: 8,
     },
@@ -169,3 +180,20 @@ const styles = StyleSheet.create({
 })
 
 export default ChatRoomScreen;
+
+
+const CustomBubble = props => {
+    return (
+        <Bubble
+            {...props}
+            wrapperStyle={{
+                left: { backgroundColor: '#e1e1e1' }, // Customize left bubble background color
+                right: { backgroundColor: '#008ecc' }, // Customize right bubble background color
+            }}
+            textStyle={{
+                left: { color: '#000' }, // Customize left bubble text color
+                right: { color: '#fff' }, // Customize right bubble text color
+            }}
+        />
+    );
+};

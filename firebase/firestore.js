@@ -14,6 +14,15 @@ const getCurrentUserData = async () => {
     return null;
 }
 
+const getUserDataByName = async (name) => {
+    const datas = await getAllUserData();
+    datas.forEach((data) => {
+        if (data["username"] === name) {
+            return data;
+        }
+    })
+}
+
 const getAllUserData = async() => {
     const userDocs = await getDocs(collection(db, "users"));
     const temp = []
@@ -60,4 +69,4 @@ const getChatRoomRef = async (u1Name, u2Name) => {
     return (convDocRef);
 }
 
-export {getCurrentUserData, getCurrentUserDoc, getAllUserData, getMessages, getChatRoomRef};
+export {getCurrentUserData, getCurrentUserDoc, getAllUserData, getMessages, getChatRoomRef, getUserDataByName};
