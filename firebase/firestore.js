@@ -21,21 +21,41 @@ const getAllUserData = async() => {
     return temp;
 }
 
-const getMessages = async (u1Name, u2Name) => {
+// const getMessages = async (u1Name, u2Name) => {
+//     const convDocs = await getDocs(collection(db, "messages"));
+//     var convDocData = null
+//     convDocs.forEach((doc) => {
+//         const docData = doc.data()
+//         if (docData["members"].includes(u1Name) && docData["members"].includes(u2Name)) {
+//             convDocData = docData;
+//         }
+//     })
+//     if (convDocData != null) {
+//         return convDocData["messages"];
+//     }
+//     else {
+//         return null;
+//     }
+// }
+
+const getMessages = async (chatRoomRef) => {
+    const chatDoc = await getDoc(chatRoomRef);
+    const chatData = await chatDoc.data();
+    return chatData["messages"];
+}
+
+const getChatRoomRef = async (u1Name, u2Name) => {
     const convDocs = await getDocs(collection(db, "messages"));
-    var convDocData = null
+    var convDocRef = null
     convDocs.forEach((doc) => {
         const docData = doc.data()
         if (docData["members"].includes(u1Name) && docData["members"].includes(u2Name)) {
-            convDocData = docData;
+            convDocRef = doc.ref;
         }
     })
-    if (convDocData != null) {
-        return convDocData["messages"];
-    }
-    else {
-        return null;
-    }
+    console.log(convDocRef);
+
+    return (convDocRef);
 }
 
-export {getCurrentUserData, getCurrentUserDoc, getAllUserData, getMessages};
+export {getCurrentUserData, getCurrentUserDoc, getAllUserData, getMessages, getChatRoomRef};
