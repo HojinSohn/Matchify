@@ -58,7 +58,7 @@ const PromptScreen = () => {
                 setExistingProfile(true);
                 setName(userData["username"])
                 setBio(userData["userBio"])
-                setPfp(userData["userPfp"])
+                setPfp(userData["ImageUrl"])
                 setPrevPfp(userData["userPfp"])
                 setPrevImageUrl(userData["ImageUrl"])
                 setUserTopItems(userData["topArtists"])
