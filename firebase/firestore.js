@@ -15,12 +15,16 @@ const getCurrentUserData = async () => {
 }
 
 const getUserDataByName = async (name) => {
+    console.log("getUserDataByName: ", name)
     const datas = await getAllUserData();
-    datas.forEach((data) => {
+    let userData = null;
+    datas.forEach(data => {
         if (data["username"] === name) {
-            return data;
+            console.log("getUserDataByName: ", data)
+            userData = data;
         }
     })
+    return userData;
 }
 
 const getAllUserData = async() => {
@@ -78,4 +82,17 @@ const getChatRoomRef = async (u1Name, u2Name) => {
     return (convDocRef);
 }
 
-export {getCurrentUserData, getCurrentUserDoc, getAllUserData, getMessages, getChatRoomRef, getUserDataByName};
+const getChatRoomDatas = async (username) => {
+    const convDocs = await getDocs(collection(db, "messages"));
+    const convDatas = [];
+    convDocs.forEach((doc) => {
+        const docData = doc.data()
+        if (docData["members"].includes(username)) {
+            convDatas.push(doc.data());
+        }
+    })
+
+    return (convDatas);
+}
+
+export {getCurrentUserData, getCurrentUserDoc, getAllUserData, getMessages, getChatRoomRef, getUserDataByName, getChatRoomDatas};

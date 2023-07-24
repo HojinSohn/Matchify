@@ -79,6 +79,10 @@ const HomeScreen = () => {
             .catch(error => alert(error.message))
     }
 
+    const showChatList = async () => {
+        navigation.replace("ChatList");
+    }
+
     const showProfileToggle = async () => {
         // console.log("Hi", userData);
         // console.log("Hi!!!!!!!", imageUrl);
@@ -110,6 +114,9 @@ const HomeScreen = () => {
             {dataLoaded && (
                 <UserPage allUserData ={allUserData} />
             )}
+            <TouchableOpacity onPress={showChatList} style={styles.button}>
+                <Text style={styles.buttonText}>chatList</Text>
+            </TouchableOpacity>
         </View>
     )
 }
