@@ -6,7 +6,7 @@ var token = null;
 
 const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
 const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
-const redirectUri = 'exp://192.168.1.20:19000/--/';
+const redirectUri = 'exp://192.168.1.6:19000/--/';
 const exchangeCodeForAccessToken = async (code) => {
     try {
         const response = await axios.post(

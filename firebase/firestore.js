@@ -1,5 +1,5 @@
 import {auth, db} from "./firebase"
-import {collection, doc, getDoc, getDocs} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, setDoc} from "firebase/firestore";
 
 const getCurrentUserDoc = async () => {
     const docRef = await doc(db, "users", auth.currentUser?.email);
@@ -64,6 +64,15 @@ const getChatRoomRef = async (u1Name, u2Name) => {
             convDocRef = doc.ref;
         }
     })
+
+    if (convDocRef === null) {
+        const messageID = u1Name + "+" + u2Name;
+        convDocRef = await doc(db, "messages", messageID);
+        await setDoc(convDocRef, {
+            members: [u1Name, u2Name],
+            messages: []
+        });
+    }
     console.log(convDocRef);
 
     return (convDocRef);

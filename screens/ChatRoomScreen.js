@@ -41,12 +41,14 @@ const ChatRoomScreen = (data) => {
         const u2Name = chatUserData["username"];
         const u2Data = getUserDataByName(u2Name);
         setYouProfileUrl(u2Data["ImageUrl"]);
+        console.log("setChatRoomRef 1: ", u1Name, u2Name);
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
+        console.log("setChatRoomRef 2: ", chatRoomRef);
     }
 
     useEffect(() => {
-        loadMessage();
         setChatRoomRef();
+        loadMessage();
     }, []);
 
     const saveMessage = async (messages) => {

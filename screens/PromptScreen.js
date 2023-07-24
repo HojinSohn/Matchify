@@ -148,7 +148,7 @@ const PromptScreen = () => {
                 const fileName = pfp.substring(pfp.lastIndexOf('/') + 1);
                 url = await getImageUrl(fileName);
             }
-            const docRef = getCurrentUserDoc();
+            const docRef = await getCurrentUserDoc();
             await setDoc(docRef, {
                 username: name,
                 userBio: bio,
@@ -164,15 +164,23 @@ const PromptScreen = () => {
 
     //upload profile picture from device storage
     const pfpSelect = async () => {
-        let imageGot = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 4],
-            quality: 1,
-        });
+        try {
+            let imageGot = null;
+            imageGot = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 4],
+                quality: 1,
+            });
+
+            setPfp(imageGot.assets[0].uri);
+
+        } catch (error) {
+            console.log(error);
+        }
+
 
         // if (!imageGot.canceled) {
-        setPfp(imageGot.assets[0].uri);
 
         // }
     }
