@@ -15,12 +15,12 @@ const getCurrentUserData = async () => {
 }
 
 const getUserDataByName = async (name) => {
-    console.log("getUserDataByName: ", name)
+    // console.log("getUserDataByName: ", name)
     const datas = await getAllUserData();
     let userData = null;
     datas.forEach(data => {
         if (data["username"] === name) {
-            console.log("getUserDataByName: ", data)
+            // console.log("getUserDataByName: ", data)
             userData = data;
         }
     })

@@ -1,36 +1,25 @@
 import {
-    Button,
-    FlatList,
-    SafeAreaView,
-    ScrollView,
     StyleSheet,
-    Text,
-    TextInput,
     TouchableOpacity,
     View
 } from "react-native";
 import {
     getChatRoomRef,
     getCurrentUserData,
-    getCurrentUserDoc,
     getMessages,
-    getUserDataByName
 } from "../firebase/firestore";
-import {useCallback, useEffect, useState} from "react";
-import UserProfile from "../components/UserProfile";
+import React, {useCallback, useEffect, useState} from "react";
 import {addDoc, arrayUnion, setDoc, updateDoc} from "firebase/firestore";
 import {useNavigation} from "@react-navigation/core";
 import {Bubble, GiftedChat} from "react-native-gifted-chat";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 const ChatRoomScreen = (data) => {
     const navigation = useNavigation();
     const chatUserData = data.route.params?.param;
     const [username, setUsername] = useState(null);
-    const [userEmail, setUserEmail] = useState(null);
     const [messages, setMessages] = useState([{}]);
-    const [input, setInput] = useState(null);
     const [userProfileUrl, setUserProfileUrl] = useState(null);
-    const [youProfileUrl, setYouProfileUrl] = useState(null);
     var chatRoomRef = null;
 
     const setChatRoomRef = async () => {
@@ -38,14 +27,10 @@ const ChatRoomScreen = (data) => {
         const u1Name = u1Data["username"];
         setUsername(u1Name);
         setUserProfileUrl(u1Data["ImageUrl"])
-        console.log("setChatRoomRef: ", chatUserData);
         const u2Name = chatUserData["username"];
-        // const u2Data = await getUserDataByName(u2Name);
         const u2Data = data;
         setYouProfileUrl(u2Data["ImageUrl"]);
-        console.log("setChatRoomRef 1: ", u1Name, u2Name);
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
-        console.log("setChatRoomRef 2: ", chatRoomRef);
     }
 
     useEffect(() => {
@@ -54,7 +39,6 @@ const ChatRoomScreen = (data) => {
     }, []);
 
     const saveMessage = async (messages) => {
-        console.log(messages)
         if (chatRoomRef === null) {
             await setChatRoomRef();
         }
@@ -72,7 +56,6 @@ const ChatRoomScreen = (data) => {
             const messageData = await getMessages(chatRoomRef); // should change method
             const messageArray = []
             messageData.forEach(message => {
-                console.log(message["text"]);
                 message["createdAt"] = message["createdAt"].toDate();
                 messageArray.unshift(message);
             })
@@ -82,18 +65,16 @@ const ChatRoomScreen = (data) => {
     const onSend = useCallback((messages = []) => {
         saveMessage(messages);
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-        console.log(messages);
     }, []);
 
     const handleQuit = async () => {
-        navigation.replace("Home");
+        navigation.replace("ChatList");
     }
 
     return (
-        <View style={{flex: 1}}>
-            <TouchableOpacity onPress={handleQuit}
-                            style={styles.button}>
-                <Text style={styles.buttonText}>Quit</Text>
+        <View style={{flex: 1, backgroundColor: "#F5F5F5"}}>
+            <TouchableOpacity onPress={handleQuit}>
+                <MaterialCommunityIcons name="logout" size={40} color="black"/>
             </TouchableOpacity>
             <GiftedChat
                 messages={messages}
@@ -123,7 +104,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         alignItems: 'center',
         marginTop: 10,
-        borderColor: "#000000",
+        borderColor: "#000",
         borderWidth: 1.5,
     },
     buttonText: {
@@ -191,8 +172,8 @@ const CustomBubble = props => {
         <Bubble
             {...props}
             wrapperStyle={{
-                left: { backgroundColor: '#e1e1e1' }, // Customize left bubble background color
-                right: { backgroundColor: '#008ecc' }, // Customize right bubble background color
+                left: { backgroundColor: '#ffffff' }, // Customize left bubble background color
+                right: { backgroundColor: '#FF7F00' }, // Customize right bubble background color
             }}
             textStyle={{
                 left: { color: '#000' }, // Customize left bubble text color

@@ -1,9 +1,7 @@
-import {Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {auth} from "../firebase/firebase";
+import {Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import ProfilePicture from "./ProfilePicture";
 import React, {useEffect, useState} from "react";
 import {getArtistInfo, getTrackInfo} from "../api/api";
-import {getToken} from "../api/token";
 import ArtistProfile from "./ArtistProfile";
 import TrackProfile from "./TrackProfile";
 import { Ionicons } from '@expo/vector-icons';
@@ -26,7 +24,7 @@ function UserProfile({userData}) {
     }
     return(
         <View style={styles.container}>
-            <ProfilePicture selectedImage={userData["ImageUrl"]} size={350} style={styles.profileImage}/>
+            <ProfilePicture selectedImage={userData["ImageUrl"]} size={350}/>
 
             <View style={styles.chatBox}>
                 <View style={styles.textContainer}>
@@ -37,9 +35,6 @@ function UserProfile({userData}) {
                     <Ionicons name="chatbubble-ellipses-outline" size={50} color="black"/>
                 </TouchableOpacity>
             </View>
-
-            {/*<Text>Top Artist: {userData["topArtists"]?.toString()}</Text>*/}
-            {/*<Text>Spotify Data: {userData["userSpotifyData"]?.toString()}</Text>*/}
             <TouchableOpacity onPress={artistToggle} style={styles.button}>
                 <Text style={styles.buttonText}>{artistProfileShow ? 'Hide Artists' : 'Show Artists'}</Text>
             </TouchableOpacity>
@@ -171,16 +166,16 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     button: {
-        backgroundColor: '#0782F9',
-        width: '30%',// 40
+        backgroundColor: '#FFA500',
+        width: '35%',// 40
         padding: 15,
         borderRadius: 10,
-        alignItems: 'center'
+        alignItems: 'center',
     },
     buttonText: {
         color: 'white',
-        fontWeight: '500',
-        fontSize: 10,
+        fontWeight: 'bold',
+        fontSize: 12,
     },
     profileImage: {
         width: 200,
@@ -210,8 +205,8 @@ const styles = StyleSheet.create({
         margin: 10,
         alignItems: "center",
         backgroundColor: '#ffffff',
-        borderColor: '#000000',
-        borderWidth: 5
+        // borderColor: '#b5ffe4',
+        // borderWidth: 5
     },
     username: {
         fontSize: 30,

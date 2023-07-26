@@ -1,5 +1,4 @@
 import {StyleSheet, Text, View} from "react-native";
-import ProfilePicture from "./ProfilePicture";
 import React from "react";
 import {Image} from 'react-native'
 

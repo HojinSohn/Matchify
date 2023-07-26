@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
-import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View, Image} from 'react-native'
-import {auth, colRef, storage} from "../firebase/firebase";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {auth, storage} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        // backgroundColor: "#121212",
+        backgroundColor: "#FFE4B5",
     },
     input: {
         backgroundColor: 'white',
@@ -302,13 +302,13 @@ const styles = StyleSheet.create({
         marginVertical: 5,
     },
     button: {
-        backgroundColor: '#0782F9',
+        backgroundColor: '#FFA500',
         width: '60%',
         padding: 15,
         borderRadius: 25,
         alignItems: 'center',
         marginTop: 10,
-        borderColor: "#000000",
+        borderColor: "#FF7A00",
         borderWidth: 1.5,
     },
     buttonText: {

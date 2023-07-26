@@ -1,10 +1,7 @@
 import { useNavigation } from '@react-navigation/core'
 import React, {useState, useEffect} from 'react'
 import {KeyboardAvoidingView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View} from 'react-native'
-import {auth, provider} from '../firebase/firebase'
-import {deleteUser} from "firebase/auth"
-
-import {doc, getDoc} from "firebase/firestore";
+import {auth} from '../firebase/firebase'
 const LoginScreen = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -52,7 +49,8 @@ const LoginScreen = () => {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior="padding"
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            // behavior={"padding"}
         >
             <View style={styles.inputContainer}>
                 <TextInput
@@ -95,6 +93,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#FFE4B5'
     },
     inputContainer: {
         width: '80%'
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
     button: {
-        backgroundColor: '#0782F9',
+        backgroundColor: '#FFA500',
         width: '100%',
         padding: 15,
         borderRadius: 10,
@@ -127,12 +126,12 @@ const styles = StyleSheet.create({
     buttonOutline: {
         backgroundColor: 'white',
         marginTop: 5,
-        borderColor: '#0782F9',
+        borderColor: '#FFA500',
         borderWidth: 2,
 
     },
     buttonOutlineText: {
-        color: '#0782F9',
+        color: '#FF7A00',
         fontWeight: '700',
         fontSize: 16,
     },

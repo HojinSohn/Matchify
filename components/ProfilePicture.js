@@ -1,6 +1,5 @@
 import {Image} from 'react-native'
 function ProfilePicture({ selectedImage, size}) {
-
     if (selectedImage === null || selectedImage === undefined) {
         return (
             <Image
@@ -8,12 +7,10 @@ function ProfilePicture({ selectedImage, size}) {
             />
         )
     } else {
-        // console.log("hello", selectedImage);
+        console.log("ProfilePicture::::", selectedImage, size);
         return (
             <Image
-                source={{uri: selectedImage}} style={{ width: size, height: size , margin: 5,
-                                                        borderWidth: 5, borderColor: "#C0C0C0"}}
-                // source={{uri: selectedImage}}
+                source={{uri: selectedImage}} style={{ width: size, height: size , margin: 5, borderRadius: 15}}
             />
         )
     }

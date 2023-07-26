@@ -1,12 +1,12 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    getAllUserData, getChatRoomDatas,
-    getChatRoomRef,
+    getChatRoomDatas,
     getCurrentUserData, getUserDataByName
 } from "../firebase/firestore";
 import {StyleSheet, Text, TouchableOpacity, View, ScrollView} from 'react-native'
-import UserProfile from "../components/UserProfile";
 import {useNavigation} from "@react-navigation/core";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
+import ProfilePicture from "../components/ProfilePicture";
 
 const ChatListScreen = () => {
     const navigation = useNavigation();
@@ -15,10 +15,12 @@ const ChatListScreen = () => {
     useEffect(() => {
         const processUserDatas = async () => {
             const currentUser = await getCurrentUserData();
+            setUserName(currentUser["username"]);
             const chatRoomDatas = await getChatRoomDatas(currentUser["username"]);
             const userList = [];
             chatRoomDatas.forEach(chatRoomData => {
                 const members = chatRoomData["members"];
+                console.log("hola processUserDAtews: ", members, "and, ", userName);
                 if (members[0] === userName) {
                     userList.push(members[1]);
                 } else {
@@ -26,27 +28,48 @@ const ChatListScreen = () => {
                 }
             })
             setUserList(userList);
-            console.log(userList);
         }
         processUserDatas();
     }, [])
 
     const showChatRoom = async (username) => {
         const data = await getUserDataByName(username);
-        console.log("showChatRoom: ", data);
         navigation.replace("ChatRoom", {param : data});
     }
 
-    return (
+    const handleQuit = async () => {
+        navigation.replace("Home");
+    }
 
+    function ChatRoomProfile({username}) {
+        const [url, setUrl] = useState(null);
+
+        useEffect(() => {
+            const fetchData = async () => {
+                const userData = await getUserDataByName(username);
+                setUrl(userData["ImageUrl"]);
+            }
+            fetchData();
+        })
+        return (
+            <TouchableOpacity style={styles.chatRoomItem} onPress={() => showChatRoom(username)}>
+                <ProfilePicture selectedImage={url} size={70}></ProfilePicture>
+                <Text>{username}</Text>
+            </TouchableOpacity>
+        );
+    }
+
+    return (
         <View style={styles.container}>
+            <TouchableOpacity onPress={handleQuit}>
+                <MaterialCommunityIcons name="logout" size={40} color="black"/>
+            </TouchableOpacity>
+
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 {userList.map((item, index) => {
                     return (
                         <View key={index}>
-                            <TouchableOpacity style={styles.chatRoomItem} onPress={() => showChatRoom(item)}>
-                                <Text style={styles.roomText}>{item}</Text>
-                            </TouchableOpacity>
+                            <ChatRoomProfile username={item} ></ChatRoomProfile>
                         </View>
                     );
                 })}
@@ -59,14 +82,15 @@ const ChatListScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-        backgroundColor: '#ffffff', // Light blue background color
+        padding:5,
+        backgroundColor: '#FFE4B5',
     },
     scrollViewContent: {
         paddingBottom: 8,
+        marginTop: 10,
     },
     chatRoomItem: {
-        backgroundColor: '#BFBEEB', // Light blue chat room color
+        backgroundColor: '#ADD8E6',
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,
@@ -74,7 +98,7 @@ const styles = StyleSheet.create({
     roomText: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#FFFFFF', // White text color on light blue background
+        color: '#000000',
         textAlign: 'center',
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowOffset: { width: 1, height: 1 },

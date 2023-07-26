@@ -7,7 +7,6 @@ const getImageUrl = async (fileName) => {
         let url;
         const downloadURL = await getDownloadURL(imageRef).then((x) => {
             url = x;
-            console.log("WTFFF, ", url);
         });
         return (url);
 

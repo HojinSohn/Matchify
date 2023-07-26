@@ -2,20 +2,15 @@ import React, {useEffect, useState} from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {auth} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
-import {doc, getDoc, getDocs, collection} from "firebase/firestore";
 import UserPage from "../components/UserPage";
-import UserProfile from "../components/UserProfile";
 import {getToken} from "../api/token";
 import {getAllUserData, getCurrentUserData, getCurrentUserDoc} from "../firebase/firestore";
+import {Entypo, MaterialCommunityIcons} from "@expo/vector-icons";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
-    const [showProfile, setShowProfile] = useState(false);
-    // const docRef = getCurrentUserDoc();
     const [userData, setUserData] = useState(null);
-    // const [imageUrl, setImageUrl] = useState(null);
     const [allUserData, setAllUserData] = useState(null);
-    const [dataLoaded, setDataLoaded] = useState(false);
 
     useEffect(() => {
         auth.onAuthStateChanged(user => {
@@ -25,46 +20,16 @@ const HomeScreen = () => {
         });
 
         getToken();
-
-        // const getUserData = async() => {
-        //     try {
-        //         const docSnap = await getDoc(docRef);
-        //
-        //         if (docSnap.exists()) {
-        //             console.log("Document data:", docSnap.data());
-        //             setUserData(docSnap.data());
-        //         } else {
-        //             // doc.data() will be undefined in this case
-        //             console.log("No such document!");
-        //         }
-        //     } catch (error) {
-        //         console.log(error)
-        //     }
-        // }
-        setUserData(getCurrentUserData()); //
-        // getUserData();
+        setUserData(getCurrentUserData());
     }, []);
 
     useEffect(() => {
-        // const getAllData = async() => {
-        //     const userDocs = await getDocs(collection(db, "users"));
-        //     const temp = []
-        //     userDocs.forEach((doc) => {
-        //         temp.push(doc.data());
-        //     })
-        //     console.log("Hey this is user data, ", temp[0]["username"]);
-        //     setAllUserData(temp);
-        // }
         const fetchUserData = async () => {
             const allUserData = await getAllUserData();
             setAllUserData(allUserData);
         }
         fetchUserData();
     }, [userData]);
-
-    const showAllUserData = async () => {
-        setDataLoaded(!dataLoaded);
-    }
 
     const editProfile = async () => {
         navigation.replace("Prompt");
@@ -83,44 +48,32 @@ const HomeScreen = () => {
         navigation.replace("ChatList");
     }
 
-    const showProfileToggle = async () => {
-        // console.log("Hi", userData);
-        // console.log("Hi!!!!!!!", imageUrl);
-        setShowProfile(!showProfile);
-    }
 
     return (
         <View style={(styles.container)}>
-            {/*<TouchableOpacity onPress={showProfileToggle} style={styles.button}>*/}
-            {/*    <Text style={styles.buttonText}>{showProfile ? 'Hide Profile' : 'Show Profile'}</Text>*/}
-            {/*</TouchableOpacity>*/}
-            {/*{showProfile && (*/}
-            {/*    <UserProfile userData={userData}></UserProfile>*/}
-            {/*)}*/}
-
-            <TouchableOpacity onPress={editProfile} style={styles.button}>
-                <Text style={styles.buttonText}>{'Show / Edit Profile'}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                onPress={handleSignOut}
-                style={styles.button}
-            >
-                <Text style={styles.buttonText}>Sign out</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={showAllUserData} style={styles.button}>
-                <Text style={styles.buttonText}>{dataLoaded ? 'Hide Data' : 'Show Data'}</Text>
-            </TouchableOpacity>
-            {dataLoaded && (
+            <View style={styles.buttonPanel}>
+                <TouchableOpacity
+                    onPress={handleSignOut}
+                    style={{margin: 10, flex: 1}}
+                >
+                    <MaterialCommunityIcons name="logout" size={40} color="black"/>
+                </TouchableOpacity>
+                <Text style={styles.title}>MATCHIFY</Text>
+                <View style={{flex: 1.5, flexDirection: "row", alignItems: "center"}}>
+                    <TouchableOpacity onPress={editProfile} style={{flex: 1}}>
+                        <MaterialCommunityIcons name="account-circle" size={40} color="black"/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={showChatList} style={{flex: 1}}>
+                        <Entypo name="chat" size={40} color="black" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+            {allUserData !== null && (
                 <UserPage allUserData ={allUserData} />
             )}
-            <TouchableOpacity onPress={showChatList} style={styles.button}>
-                <Text style={styles.buttonText}>chatList</Text>
-            </TouchableOpacity>
         </View>
     )
 }
-
 export default HomeScreen
 
 const styles = StyleSheet.create({
@@ -128,13 +81,15 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
+        backgroundColor: "#FFE4B5"
     },
     button: {
         backgroundColor: '#0782F9',
-        width: '100%',// 40
+        // width: '100%',// 40
         padding: 15,
         borderRadius: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        marginHorizontal: 10
     },
     buttonText: {
         color: 'white',
@@ -148,4 +103,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    buttonPanel: {
+        flex: 0.1,
+        flexDirection: 'row',
+        alignItems: "center",
+        backgroundColor: "#FFF0D9"
+    },
+    title: {
+        flex: 3,
+        fontWeight: "bold",
+        fontStyle: "italic",
+        fontSize: 35,
+    }
 })
