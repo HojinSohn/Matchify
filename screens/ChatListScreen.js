@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     chatRoomItem: {
-        backgroundColor: '#ADD8E6',
+        backgroundColor: '#b5f5ff',
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,

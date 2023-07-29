@@ -6,6 +6,7 @@ import UserPage from "../components/UserPage";
 import {getToken} from "../api/token";
 import {getAllUserData, getCurrentUserData, getCurrentUserDoc} from "../firebase/firestore";
 import {Entypo, MaterialCommunityIcons} from "@expo/vector-icons";
+import {getEventsByName} from "../api/api";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -20,6 +21,7 @@ const HomeScreen = () => {
         });
 
         getToken();
+        // getEventsByName(); // test
         setUserData(getCurrentUserData());
     }, []);
 
@@ -81,7 +83,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        backgroundColor: "#FFE4B5"
+        // backgroundColor: "#FFE4B5"
+        backgroundColor: "#fff7e8"
     },
     button: {
         backgroundColor: '#0782F9',

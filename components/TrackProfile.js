@@ -7,7 +7,7 @@ function TrackProfile({trackInfo}) {
         <View style={styles.container}>
             <Text style={styles.name}>{trackInfo["name"]}</Text>
             <Image
-                source={{uri: trackInfo["imageUrl"]}} style={{ width: 150, height: 150 , marginTop: 15}}
+                source={{uri: trackInfo["imageUrl"]}} style={{ width: 250, height: 250 , marginTop: 15}}
             />
             <Text style={styles.genre}>{trackInfo["artist"]}</Text>
         </View>

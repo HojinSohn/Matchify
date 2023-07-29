@@ -3,6 +3,9 @@ import {getToken} from "./token";
 
 var token;
 
+const clientSecretSeatGeek = "2ab3ea2c018b688727e1d978874ac6b72c1909217701fa45624cbf778d4b64d7";
+const clientIDSeatGeek = "MzUxOTgwMzN8MTY5MDQxNjE2My4zMTExMzQ2";
+
 const getUserProfile = async () => {
     token = await getToken();
     var userData = [];
@@ -97,4 +100,11 @@ const getUsersTopTrack = async () => {
     // setUserTopItems(topItems);
 }
 
-export {getUserProfile, getUsersTopItem, getArtistInfo, getUsersTopTrack, getTrackInfo}
+const getEventsByName = async () => {
+    const response = await axios.get(`https://api.seatgeek.com/2/performers?q=${name}&client_id=${clientIDSeatGeek}&client_secret=${clientSecretSeatGeek}`);
+    console.log("getEvents::::", response.data);
+    // setUserProfileData(userData);
+}
+
+
+export {getUserProfile, getUsersTopItem, getArtistInfo, getUsersTopTrack, getTrackInfo,getEventsByName}

@@ -8,7 +8,7 @@ function ArtistProfile({artistInfo}) {
         <View style={styles.container}>
             <Text style={styles.name}>{artistInfo["name"]}</Text>
             <Image
-                source={{uri: artistInfo["imageUrl"]}} style={{ width: 150, height: 150 , marginTop: 15}}
+                source={{uri: artistInfo["imageUrl"]}} style={{ width: 250, height: 250 , marginTop: 15}}
             />
             <Text style={styles.genre}>{artistInfo["genres"].join(" / ")}</Text>
         </View>
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         margin: 15,
         padding: 15,
-        alignItems: "center"
+        alignItems: "center",
     },
     name: {
         fontSize: 25,

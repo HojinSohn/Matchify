@@ -4,8 +4,8 @@ import { encode } from 'base-64';
 
 var token = null;
 
-const clientId = "c2f5a819d4684f8c9efc489144cb0e0a";
-const clientSecret = '0cb4370ee5254a16aa2fd319290a15f5';
+const clientIdSpotify = "c2f5a819d4684f8c9efc489144cb0e0a";
+const clientSecretSpotify = '0cb4370ee5254a16aa2fd319290a15f5';
 const redirectUri = 'exp://192.168.1.6:19000/--/';
 const exchangeCodeForAccessToken = async (code) => {
     try {
@@ -19,7 +19,7 @@ const exchangeCodeForAccessToken = async (code) => {
             {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' + encode(`${clientId}:${clientSecret}`)
+                    'Authorization': 'Basic ' + encode(`${clientIdSpotify}:${clientSecretSpotify}`)
                 }
             },
         );
@@ -45,7 +45,7 @@ const getToken = async () => {
         return token;
     }
 
-    const auth = encode(`${clientId}:${clientSecret}`);
+    const auth = encode(`${clientIdSpotify}:${clientSecretSpotify}`);
 
     const response = await axios.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
         headers: {
@@ -77,4 +77,4 @@ curl -X POST "https://accounts.spotify.com/api/token" \
      -d "grant_type=client_credentials&client_id=your-client-id&client_secret=your-client-secret"
  */
 
-export {exchangeCodeForAccessToken, getToken, clientId, redirectUri};
+export {exchangeCodeForAccessToken, getToken, clientIdSpotify, redirectUri};

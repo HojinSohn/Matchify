@@ -1,4 +1,4 @@
-import {Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Dimensions, FlatList, ScrollView, SectionList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import ProfilePicture from "./ProfilePicture";
 import React, {useEffect, useState} from "react";
 import {getArtistInfo, getTrackInfo} from "../api/api";
@@ -7,6 +7,7 @@ import TrackProfile from "./TrackProfile";
 import { Ionicons } from '@expo/vector-icons';
 import {useNavigation} from "@react-navigation/core";
 
+const screenWidth = Dimensions.get('window').width;
 function UserProfile({userData}) {
     const navigation = useNavigation()
     const [artistProfileShow, setArtistProfileShow] = useState(false);
@@ -22,10 +23,60 @@ function UserProfile({userData}) {
     const chatPress = () => {
         navigation.replace("ChatRoom", {param : userData})
     }
+
+    const data = [
+        { id: '1', content: 'Page 1' },
+        { id: '2', content: 'Page 2' },
+        { id: '3', content: 'Page 3'}
+    ];
+
+    const renderItem = ({ item }) => {
+        return (
+            <View>
+                {renderPageContent(item.content)}
+            </View>
+        );
+    };
+
+    const renderPageContent = (content) => {
+        switch (content) {
+            case 'Page 1':
+                return (
+                    <View style={styles.pageContainer}>
+                        <ProfilePicture selectedImage={userData["ImageUrl"]} size={screenWidth * 0.95}/>
+                    </View>
+                )
+            case 'Page 2':
+                return (
+                    <View style={styles.pageContainer}>
+                            <ScrollView style={styles.artistContainer} nestedScrollEnabled={true}>
+                                <ArtistProfiles userData={userData}></ArtistProfiles>
+                            </ScrollView>
+                    </View>
+                )
+            case 'Page 3':
+                return (<View style={styles.pageContainer}>
+                        <ScrollView style={styles.artistContainer} nestedScrollEnabled={true}>
+                            <TrackProfiles userData={userData}></TrackProfiles>
+                        </ScrollView>
+                </View>)
+            default:
+                return null;
+        }
+    };
+
+
+
     return(
         <View style={styles.container}>
-            <ProfilePicture selectedImage={userData["ImageUrl"]} size={350}/>
-
+            <FlatList
+                data={data}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+            />
             <View style={styles.chatBox}>
                 <View style={styles.textContainer}>
                     <Text style={styles.username}>{userData["username"]}</Text>
@@ -35,23 +86,6 @@ function UserProfile({userData}) {
                     <Ionicons name="chatbubble-ellipses-outline" size={50} color="black"/>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={artistToggle} style={styles.button}>
-                <Text style={styles.buttonText}>{artistProfileShow ? 'Hide Artists' : 'Show Artists'}</Text>
-            </TouchableOpacity>
-            { artistProfileShow && (
-                <ScrollView style={styles.artistContainer} nestedScrollEnabled={true}>
-                <ArtistProfiles userData={userData}></ArtistProfiles>
-            </ScrollView>
-            )}
-
-            <TouchableOpacity onPress={trackToggle} style={styles.button}>
-                <Text style={styles.buttonText}>{trackProfileShow ? 'Hide Tracks' : 'Show Tracks'}</Text>
-            </TouchableOpacity>
-            { trackProfileShow && (
-                <ScrollView style={styles.artistContainer} nestedScrollEnabled={true}>
-                <TrackProfiles userData={userData}></TrackProfiles>
-            </ScrollView>)}
-
         </View>
     )
 }
@@ -77,7 +111,7 @@ function ArtistProfiles({userData}) {
                         return (
                             <View key={index} style={styles.infoContainer}>
                                 <Text style={styles.infoText}>Artist Info:</Text>
-                                <ArtistProfile artistInfo={info} />
+                                <ArtistProfile artistInfo={info}/>
                             </View>
                         );
                     })
@@ -163,34 +197,21 @@ const processTracks = async (userData) => {
 const styles = StyleSheet.create({
     chatBox: {
         flexDirection: "row",
-        alignItems: "center"
-    },
-    button: {
-        backgroundColor: '#FFA500',
-        width: '35%',// 40
-        padding: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 12,
-    },
-    profileImage: {
-        width: 200,
-        height: 200,
-        marginBottom: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: "center",
+        marginVertical: 10,
+        borderColor: "black",
+        borderWidth: 3,
+        borderRadius: 15,
+        padding: 5,
+        backgroundColor: "#ffffff"
     },
     artistContainer: {
         maxHeight: 500,
-        margin: 15
+        width: Dimensions.get('window').width * 0.95,
+        marginBottom: 15
     },
     infoContainer: {
         marginBottom: 20,
-        width: Dimensions.get('window').width * 0.7,
     },
     infoText: {
         color: '#FFFFFF',
@@ -200,13 +221,22 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        // minHeight: 800,
-        padding: 15,
-        margin: 10,
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height * 0.8,
+        marginVertical: 15,
+        paddingVertical: 15,
         alignItems: "center",
-        backgroundColor: '#ffffff',
-        // borderColor: '#b5ffe4',
-        // borderWidth: 5
+        // backgroundColor: '#b5f5ff',
+        backgroundColor: '#ffe4b5',
+        // backgroundColor: '#ff8924',
+        borderRadius: 10
+    },
+    pageContainer: {
+        flex: 1,
+        width: Dimensions.get('window').width,
+        paddingTop: 15,
+        alignItems: "center",
+        // backgroundColor: '#ffe4b5',
     },
     username: {
         fontSize: 30,

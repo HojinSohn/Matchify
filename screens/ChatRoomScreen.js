@@ -28,8 +28,6 @@ const ChatRoomScreen = (data) => {
         setUsername(u1Name);
         setUserProfileUrl(u1Data["ImageUrl"])
         const u2Name = chatUserData["username"];
-        const u2Data = data;
-        setYouProfileUrl(u2Data["ImageUrl"]);
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
     }
 

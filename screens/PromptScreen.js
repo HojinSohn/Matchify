@@ -10,7 +10,7 @@ import {useAuthRequest} from "expo-auth-session";
 import * as WebBrowser from 'expo-web-browser';
 import { Entypo } from '@expo/vector-icons';
 import {deleteImage, getImageUrl} from "../firebase/storage";
-import {exchangeCodeForAccessToken, clientId, redirectUri} from "../api/token";
+import {exchangeCodeForAccessToken, clientIdSpotify, redirectUri} from "../api/token";
 import {getUserProfile, getUsersTopItem, getUsersTopTrack} from "../api/api";
 import {getCurrentUserData, getCurrentUserDoc} from "../firebase/firestore";
 
@@ -37,7 +37,7 @@ const PromptScreen = () => {
 
     const [request, response, promptAsync] = useAuthRequest(
         {
-            clientId: clientId,
+            clientId: clientIdSpotify,
             scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'user-read-private', 'playlist-read-private'],
             // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
             // this must be set to false
