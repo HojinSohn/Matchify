@@ -100,9 +100,10 @@ const getUsersTopTrack = async () => {
     // setUserTopItems(topItems);
 }
 
-const getEventsByName = async () => {
+const getEventsByName = async (name) => {
     const response = await axios.get(`https://api.seatgeek.com/2/performers?q=${name}&client_id=${clientIDSeatGeek}&client_secret=${clientSecretSeatGeek}`);
-    console.log("getEvents::::", response.data);
+    console.log(name, "getEvents::::", response.data);
+    return response.data;
     // setUserProfileData(userData);
 }
 

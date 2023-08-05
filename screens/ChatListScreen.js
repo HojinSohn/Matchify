@@ -5,23 +5,22 @@ import {
 } from "../firebase/firestore";
 import {StyleSheet, Text, TouchableOpacity, View, ScrollView} from 'react-native'
 import {useNavigation} from "@react-navigation/core";
-import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {MaterialCommunityIcons, MaterialIcons} from "@expo/vector-icons";
 import ProfilePicture from "../components/ProfilePicture";
 
 const ChatListScreen = () => {
     const navigation = useNavigation();
-    const [userName, setUserName] = useState(null);
     const [userList, setUserList] = useState([]);
     useEffect(() => {
         const processUserDatas = async () => {
             const currentUser = await getCurrentUserData();
-            setUserName(currentUser["username"]);
-            const chatRoomDatas = await getChatRoomDatas(currentUser["username"]);
+            const username = currentUser["username"];
+            const chatRoomDatas = await getChatRoomDatas(username);
             const userList = [];
             chatRoomDatas.forEach(chatRoomData => {
                 const members = chatRoomData["members"];
-                console.log("hola processUserDAtews: ", members, "and, ", userName);
-                if (members[0] === userName) {
+                console.log("hola processUserDAtews: ", members, "and, ", username);
+                if (members[0] === username) {
                     userList.push(members[1]);
                 } else {
                     userList.push(members[0]);
@@ -62,7 +61,7 @@ const ChatListScreen = () => {
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={handleQuit}>
-                <MaterialCommunityIcons name="logout" size={40} color="black"/>
+                <MaterialIcons name="arrow-back" size={40} color="black"/>
             </TouchableOpacity>
 
             <ScrollView contentContainerStyle={styles.scrollViewContent}>

@@ -5,13 +5,16 @@ import {getArtistInfo, getTrackInfo} from "../api/api";
 import ArtistProfile from "./ArtistProfile";
 import TrackProfile from "./TrackProfile";
 import { Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import {useNavigation} from "@react-navigation/core";
+import {heartAdd, heartDelete} from "../firebase/firestore";
 
-const screenWidth = Dimensions.get('window').width;
+var screenWidth = Dimensions.get('window').width;
 function UserProfile({userData}) {
     const navigation = useNavigation()
     const [artistProfileShow, setArtistProfileShow] = useState(false);
     const [trackProfileShow, setTrackProfileShow] = useState(false);
+    const [heartClicked, setHeartClicked] = useState(false);
     const artistToggle = () => {
         setArtistProfileShow(!artistProfileShow);
     }
@@ -22,6 +25,15 @@ function UserProfile({userData}) {
 
     const chatPress = () => {
         navigation.replace("ChatRoom", {param : userData})
+    }
+
+    const heartPress = () => {
+        if (!heartClicked) {
+            heartAdd(userData["username"]);
+        } else {
+            heartDelete(userData["username"]);
+        }
+        setHeartClicked(!heartClicked);
     }
 
     const data = [
@@ -82,9 +94,15 @@ function UserProfile({userData}) {
                     <Text style={styles.username}>{userData["username"]}</Text>
                     <Text style={styles.userBio}>{userData["userBio"]}</Text>
                 </View>
-                <TouchableOpacity onPress={chatPress}>
-                    <Ionicons name="chatbubble-ellipses-outline" size={50} color="black"/>
-                </TouchableOpacity>
+                <View style={{flexDirection: "column", alignItems: "center"}}>
+                    <TouchableOpacity onPress={chatPress}>
+                        <Ionicons name="chatbubble-ellipses-outline" size={50} color="black"/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={heartPress}>
+                        { (heartClicked) ? (<AntDesign name="heart" size={40} color="red" />)
+                            : ( <AntDesign name="hearto" size={40} color="black" />)}
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     )
@@ -203,11 +221,12 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderRadius: 15,
         padding: 5,
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
+        width: screenWidth * 0.95,
     },
     artistContainer: {
         maxHeight: 500,
-        width: Dimensions.get('window').width * 0.95,
+        width: screenWidth * 0.95,
         marginBottom: 15
     },
     infoContainer: {
@@ -221,7 +240,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        width: Dimensions.get('window').width,
+        width: screenWidth,
         height: Dimensions.get('window').height * 0.8,
         marginVertical: 15,
         paddingVertical: 15,
@@ -233,7 +252,7 @@ const styles = StyleSheet.create({
     },
     pageContainer: {
         flex: 1,
-        width: Dimensions.get('window').width,
+        width: screenWidth,
         paddingTop: 15,
         alignItems: "center",
         // backgroundColor: '#ffe4b5',
@@ -257,3 +276,5 @@ const styles = StyleSheet.create({
 })
 
 export default UserProfile
+
+export {ArtistProfiles, TrackProfiles}

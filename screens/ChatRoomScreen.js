@@ -1,18 +1,21 @@
 import {
     StyleSheet,
     TouchableOpacity,
-    View
+    View,
+    Text, Dimensions, ScrollView, FlatList, Touchable,
 } from "react-native";
 import {
     getChatRoomRef,
     getCurrentUserData,
-    getMessages,
+    getMessages, isMatchedChat,
 } from "../firebase/firestore";
 import React, {useCallback, useEffect, useState} from "react";
 import {addDoc, arrayUnion, setDoc, updateDoc} from "firebase/firestore";
 import {useNavigation} from "@react-navigation/core";
 import {Bubble, GiftedChat} from "react-native-gifted-chat";
-import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {MaterialIcons, Feather, Ionicons, AntDesign, Entypo} from "@expo/vector-icons";
+import ProfilePicture from "../components/ProfilePicture";
+import UserProfile, {ArtistProfiles, TrackProfiles} from "../components/UserProfile";
 
 const ChatRoomScreen = (data) => {
     const navigation = useNavigation();
@@ -20,6 +23,9 @@ const ChatRoomScreen = (data) => {
     const [username, setUsername] = useState(null);
     const [messages, setMessages] = useState([{}]);
     const [userProfileUrl, setUserProfileUrl] = useState(null);
+    const [profileShow, setProfileShow] = useState(null);
+    const [matched, setMatched] = useState(false);
+    const [showProfilePanel, setShowProfilePanel] = useState(false);
     var chatRoomRef = null;
 
     const setChatRoomRef = async () => {
@@ -29,6 +35,8 @@ const ChatRoomScreen = (data) => {
         setUserProfileUrl(u1Data["ImageUrl"])
         const u2Name = chatUserData["username"];
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
+        setMatched(await isMatchedChat(chatRoomRef))
+        setShowProfilePanel(true);//
     }
 
     useEffect(() => {
@@ -69,24 +77,89 @@ const ChatRoomScreen = (data) => {
         navigation.replace("ChatList");
     }
 
-    return (
-        <View style={{flex: 1, backgroundColor: "#F5F5F5"}}>
-            <TouchableOpacity onPress={handleQuit}>
-                <MaterialCommunityIcons name="logout" size={40} color="black"/>
-            </TouchableOpacity>
-            <GiftedChat
-                messages={messages}
-                showAvatarForEveryMessage={true}
-                onSend={messages => onSend(messages)}
-                user={{
-                    _id: username,
-                    name: username,
-                    avatar: userProfileUrl
-                }}
-                renderBubble={props => <CustomBubble {...props} />}
-            />
-        </View>
-    );
+    const pressLocation = async () => {
+        console.log("location share")
+    }
+
+    const showProfile = async () => {
+        setProfileShow(true);
+    }
+
+    const hideProfile = async () => {
+        setProfileShow(false);
+    }
+
+    const closePanel = async () => {
+        setShowProfilePanel(false);
+    }
+
+    const openPanel = async () => {
+        setShowProfilePanel(true);
+    }
+
+    if (profileShow) {
+        return (
+            <View style={{backgroundColor: "#FFF0D9", flex: 1}}>
+                <View></View>
+                <TouchableOpacity onPress={hideProfile}>
+                    <Feather name="x" size={40} color="black"/>
+                </TouchableOpacity>
+                <UserProfile userData={chatUserData}></UserProfile>
+            </View>
+        )
+    } else {
+        return (
+            <View style={{flex: 1, backgroundColor: "#fff7e8"}}>
+                <View style={styles.profilePanel}>
+                    {!showProfilePanel &&
+                        <View style={{flexDirection:"row", width: Dimensions.get("window").width, justifyContent: "space-between"}}>
+                            <TouchableOpacity onPress={handleQuit}>
+                                <MaterialIcons name="arrow-back" size={40} color="black"/>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={openPanel}>
+                                <AntDesign name={"down"} size={30} color={"black"}></AntDesign>
+                            </TouchableOpacity>
+                        </View>
+                    }
+                    {showProfilePanel &&
+                        <View style={styles.profilePanel}>
+                            <Text style={styles.username}>{chatUserData["username"]}</Text>
+                            <TouchableOpacity onPress={showProfile} style={{height: 80, width: 500, alignItems: "center"}}>
+                                <ProfilePicture selectedImage={chatUserData["ImageUrl"]} size={80}/>
+                            </TouchableOpacity>
+                            {matched &&
+                                <TouchableOpacity onPress={pressLocation} style={{height: 50, width: 200, alignItems: "center"}}>
+                                    <Entypo name={"location"} size={40} color={"black"}></Entypo>
+                                </TouchableOpacity>
+                            }
+                            <View style={{flexDirection:"row", width: Dimensions.get("window").width, marginTop: -30}}>
+                                <TouchableOpacity onPress={handleQuit}>
+                                    <MaterialIcons name="arrow-back" size={40} color="black"/>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{width: Dimensions.get("window").width, alignItems: "flex-end", marginTop: -30}}>
+                                <TouchableOpacity onPress={closePanel}>
+                                    <AntDesign name={"up"} size={30} color={"black"}></AntDesign>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    }
+                </View>
+
+                <GiftedChat
+                    messages={messages}
+                    showAvatarForEveryMessage={true}
+                    onSend={messages => onSend(messages)}
+                    user={{
+                        _id: username,
+                        name: username,
+                        avatar: userProfileUrl
+                    }}
+                    renderBubble={props => <CustomBubble {...props} />}
+                />
+            </View>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -160,6 +233,21 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
+    profilePanel: {
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#ffe4b5",
+    },
+    username: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: "#000000"
+    },
+    profileCard: {
+        width: Dimensions.get("window").width * 0.7,
+        height: Dimensions.get("window").height * 0.7,
+    }
 })
 
 export default ChatRoomScreen;

@@ -5,8 +5,8 @@ import {useNavigation} from "@react-navigation/core";
 import UserPage from "../components/UserPage";
 import {getToken} from "../api/token";
 import {getAllUserData, getCurrentUserData, getCurrentUserDoc} from "../firebase/firestore";
-import {Entypo, MaterialCommunityIcons} from "@expo/vector-icons";
-import {getEventsByName} from "../api/api";
+import {Entypo, MaterialCommunityIcons, SimpleLineIcons} from "@expo/vector-icons";
+import HeartPanel from "../components/HeartPanel";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -22,7 +22,12 @@ const HomeScreen = () => {
 
         getToken();
         // getEventsByName(); // test
-        setUserData(getCurrentUserData());
+
+        const fetchData = async () => {
+            const currentUserData = await getCurrentUserData()
+            setUserData(currentUserData);
+        }
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -70,6 +75,13 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            {userData !== null && (
+                <View style={styles.heartPanel}>
+                    <HeartPanel heartList={userData["heartList"]}></HeartPanel>
+                </View>
+            )}
+
             {allUserData !== null && (
                 <UserPage allUserData ={allUserData} />
             )}
@@ -117,5 +129,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontStyle: "italic",
         fontSize: 35,
+    },
+    heartPanel: {
+        alignItems: "flex-start"
     }
 })
