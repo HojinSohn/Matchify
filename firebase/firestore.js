@@ -104,6 +104,12 @@ const getMessages = async (chatRoomRef) => {
     return chatData["messages"];
 }
 
+const getChatRoomData = async (chatRoomRef) => {
+    const chatDoc = await getDoc(chatRoomRef);
+    const chatData = await chatDoc.data();
+    return chatData;
+}
+
 const isMatchedChat = async (chatRoomRef) => {
     const chatDoc = await getDoc(chatRoomRef);
     const chatData = await chatDoc.data()
@@ -150,4 +156,16 @@ const getChatRoomDatas = async (username) => {
     return (convDatas);
 }
 
-export {getCurrentUserData, getCurrentUserDoc, getUserDocByName, isMatchedChat, heartDelete, matchAdd, getAllUserData, getMessages, heartAdd, getChatRoomRef, getUserDataByName, getChatRoomDatas};
+const makeAppointment = async (chatRoomRef, appointmentData) => {
+    console.log(chatRoomRef, appointmentData);
+    await updateDoc(chatRoomRef, {appointmentData: appointmentData})
+}
+
+const deleteAppointment = async (chatRoomRef) => {
+    await updateDoc(chatRoomRef, {appointmentData: null})
+}
+
+export {getCurrentUserData, getCurrentUserDoc, getUserDocByName,
+    isMatchedChat, heartDelete, matchAdd, getAllUserData,
+    getMessages, heartAdd, getChatRoomRef, getUserDataByName,
+    getChatRoomDatas,getChatRoomData, makeAppointment, deleteAppointment};

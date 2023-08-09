@@ -27,7 +27,7 @@ const getUsersTopItem = async () => {
     try {
         token = await getToken();
         var topItems = [];
-        const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
+        const response = await axios.get('https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=10&offset=0', {
             headers: {
                 'Authorization': `Bearer ${token}`,
             }
@@ -106,6 +106,5 @@ const getEventsByName = async (name) => {
     return response.data;
     // setUserProfileData(userData);
 }
-
 
 export {getUserProfile, getUsersTopItem, getArtistInfo, getUsersTopTrack, getTrackInfo,getEventsByName}

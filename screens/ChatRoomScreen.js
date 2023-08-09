@@ -2,20 +2,21 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
-    Text, Dimensions, ScrollView, FlatList, Touchable,
+    Text, Dimensions,
 } from "react-native";
 import {
+    getChatRoomData,
     getChatRoomRef,
     getCurrentUserData,
     getMessages, isMatchedChat,
 } from "../firebase/firestore";
 import React, {useCallback, useEffect, useState} from "react";
-import {addDoc, arrayUnion, setDoc, updateDoc} from "firebase/firestore";
+import {arrayUnion, updateDoc} from "firebase/firestore";
 import {useNavigation} from "@react-navigation/core";
 import {Bubble, GiftedChat} from "react-native-gifted-chat";
 import {MaterialIcons, Feather, Ionicons, AntDesign, Entypo} from "@expo/vector-icons";
 import ProfilePicture from "../components/ProfilePicture";
-import UserProfile, {ArtistProfiles, TrackProfiles} from "../components/UserProfile";
+import UserProfile from "../components/UserProfile";
 
 const ChatRoomScreen = (data) => {
     const navigation = useNavigation();
@@ -26,6 +27,8 @@ const ChatRoomScreen = (data) => {
     const [profileShow, setProfileShow] = useState(null);
     const [matched, setMatched] = useState(false);
     const [showProfilePanel, setShowProfilePanel] = useState(false);
+    const [chatRoomData, setChatRoomData] = useState(null);
+    const [hasAddress, setHasAddress] = useState(false);
     var chatRoomRef = null;
 
     const setChatRoomRef = async () => {
@@ -37,6 +40,9 @@ const ChatRoomScreen = (data) => {
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
         setMatched(await isMatchedChat(chatRoomRef))
         setShowProfilePanel(true);//
+        const roomData = await getChatRoomData(chatRoomRef)
+        setChatRoomData(roomData);
+        setHasAddress(roomData.appointmentData != null);
     }
 
     useEffect(() => {
@@ -77,8 +83,9 @@ const ChatRoomScreen = (data) => {
         navigation.replace("ChatList");
     }
 
-    const pressLocation = async () => {
-        console.log("location share")
+    const pressAppointment = async () => {
+        console.log("make an appointment")
+        navigation.replace("Appointment", {param : chatUserData})
     }
 
     const showProfile = async () => {
@@ -95,6 +102,10 @@ const ChatRoomScreen = (data) => {
 
     const openPanel = async () => {
         setShowProfilePanel(true);
+    }
+
+    const seeAppointment = async () => {
+        navigation.replace("Appointment", {param : chatUserData, param2: chatRoomData})
     }
 
     if (profileShow) {
@@ -128,11 +139,17 @@ const ChatRoomScreen = (data) => {
                                 <ProfilePicture selectedImage={chatUserData["ImageUrl"]} size={80}/>
                             </TouchableOpacity>
                             {matched &&
-                                <TouchableOpacity onPress={pressLocation} style={{height: 50, width: 200, alignItems: "center"}}>
+                                (hasAddress) ?
+                                    <TouchableOpacity onPress={seeAppointment} style={{borderWidth: 2, borderColor: "black",
+                                        marginVertical: 10, padding: 5, borderRadius: 15}}>
+                                        <Text>See Appointment</Text>
+                                    </TouchableOpacity>
+                                :
+                                <TouchableOpacity onPress={pressAppointment} style={{height: 50, width: 200, alignItems: "center"}}>
                                     <Entypo name={"location"} size={40} color={"black"}></Entypo>
                                 </TouchableOpacity>
                             }
-                            <View style={{flexDirection:"row", width: Dimensions.get("window").width, marginTop: -30}}>
+                            <View style={{flexDirection:"row", width: Dimensions.get("window").width, marginTop: -10}}>
                                 <TouchableOpacity onPress={handleQuit}>
                                     <MaterialIcons name="arrow-back" size={40} color="black"/>
                                 </TouchableOpacity>
