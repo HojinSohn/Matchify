@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
 import {auth} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import UserPage from "../components/UserPage";
@@ -83,7 +83,7 @@ const HomeScreen = () => {
             )}
 
             {allUserData !== null && (
-                <UserPage allUserData ={allUserData} />
+                <UserPage allUserData = {allUserData} />
             )}
         </View>
     )
