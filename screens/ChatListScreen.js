@@ -21,9 +21,17 @@ const ChatListScreen = () => {
                 const members = chatRoomData["members"];
                 console.log("hola processUserDAtews: ", members, "and, ", username);
                 if (members[0] === username) {
-                    userList.push(members[1]);
+                    if (currentUser["matchList"].includes(members[1])) {
+                        userList.unshift(members[1])
+                    } else {
+                        userList.push(members[1]);
+                    }
                 } else {
-                    userList.push(members[0]);
+                    if (currentUser["matchList"].includes(members[0])) {
+                        userList.unshift(members[0])
+                    } else {
+                        userList.push(members[0]);
+                    }
                 }
             })
             setUserList(userList);
@@ -42,14 +50,28 @@ const ChatListScreen = () => {
 
     function ChatRoomProfile({username}) {
         const [url, setUrl] = useState(null);
+        const [isMatchedUser, setIsMatchedUser] = useState(false);
 
         useEffect(() => {
             const fetchData = async () => {
                 const userData = await getUserDataByName(username);
                 setUrl(userData["ImageUrl"]);
+                const currentUser = await getCurrentUserData();
+                if (currentUser["matchList"].includes(username)) {
+                    await setIsMatchedUser(true);
+                }
             }
             fetchData();
         })
+
+        if (isMatchedUser) {
+            return (
+                <TouchableOpacity style={styles.chatRoomItemMatched} onPress={() => showChatRoom(username)}>
+                    <ProfilePicture selectedImage={url} size={70}></ProfilePicture>
+                    <Text>{username}</Text>
+                </TouchableOpacity>
+            )
+        }
         return (
             <TouchableOpacity style={styles.chatRoomItem} onPress={() => showChatRoom(username)}>
                 <ProfilePicture selectedImage={url} size={70}></ProfilePicture>
@@ -90,6 +112,12 @@ const styles = StyleSheet.create({
     },
     chatRoomItem: {
         backgroundColor: '#b5f5ff',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 12,
+    },
+    chatRoomItemMatched: {
+        backgroundColor: '#f0a1f0',
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,

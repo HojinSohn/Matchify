@@ -2,7 +2,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
-    Text, Dimensions,
+    Text, Dimensions, Alert,
 } from "react-native";
 import {
     getChatRoomData,
@@ -11,12 +11,13 @@ import {
     getMessages, isMatchedChat,
 } from "../firebase/firestore";
 import React, {useCallback, useEffect, useState} from "react";
-import {arrayUnion, updateDoc} from "firebase/firestore";
+import {arrayUnion, updateDoc, onSnapshot, getDocs, collection} from "firebase/firestore";
 import {useNavigation} from "@react-navigation/core";
 import {Bubble, GiftedChat} from "react-native-gifted-chat";
 import {MaterialIcons, Feather, Ionicons, AntDesign, Entypo} from "@expo/vector-icons";
 import ProfilePicture from "../components/ProfilePicture";
 import UserProfile from "../components/UserProfile";
+import {db} from "../firebase/firebase";
 
 const ChatRoomScreen = (data) => {
     const navigation = useNavigation();
@@ -38,6 +39,7 @@ const ChatRoomScreen = (data) => {
         setUserProfileUrl(u1Data["ImageUrl"])
         const u2Name = chatUserData["username"];
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
+        // console.log(await isMatchedChat(chatRoomRef))
         setMatched(await isMatchedChat(chatRoomRef))
         setShowProfilePanel(true);//
         const roomData = await getChatRoomData(chatRoomRef)
@@ -45,9 +47,38 @@ const ChatRoomScreen = (data) => {
         setHasAddress(roomData.appointmentData != null);
     }
 
+    const fetchUpdates = async () => {
+        // const isMatched = await isMatchedChat(chatRoomRef)
+        // setMatched(isMatched)
+        // console.log(isMatched)
+        console.log(matched)
+        const roomData = await getChatRoomData(chatRoomRef)
+        setChatRoomData(roomData);
+        setHasAddress(roomData.appointmentData != null);
+    }
+
     useEffect(() => {
-        setChatRoomRef();
-        loadMessage();
+        const check = async () => {
+            if (chatRoomRef === null) {
+                await setChatRoomRef();
+            }
+            const unsubscribe = onSnapshot(chatRoomRef, snapshot => {
+                fetchUpdates();
+                const messageData = snapshot.data()["messages"];
+                const messageArray = []
+                messageData.forEach(message => {
+                    message["createdAt"] = message["createdAt"].toDate();
+                    messageArray.unshift(message);
+                })
+                setMessages(messageArray);
+            })
+            loadMessage();
+            return () => {
+                unsubscribe();
+            };
+        }
+        check();
+
     }, []);
 
     const saveMessage = async (messages) => {
@@ -62,16 +93,16 @@ const ChatRoomScreen = (data) => {
     }
 
     const loadMessage = async () => {
-            if (chatRoomRef === null) {
-                await setChatRoomRef();
-            }
-            const messageData = await getMessages(chatRoomRef); // should change method
-            const messageArray = []
-            messageData.forEach(message => {
-                message["createdAt"] = message["createdAt"].toDate();
-                messageArray.unshift(message);
-            })
-            setMessages(messageArray);
+        if (chatRoomRef === null) {
+            await setChatRoomRef();
+        }
+        const messageData = await getMessages(chatRoomRef); // should change method
+        const messageArray = []
+        messageData.forEach(message => {
+            message["createdAt"] = message["createdAt"].toDate();
+            messageArray.unshift(message);
+        })
+        setMessages(messageArray);
     }
 
     const onSend = useCallback((messages = []) => {
@@ -138,23 +169,23 @@ const ChatRoomScreen = (data) => {
                             <TouchableOpacity onPress={showProfile} style={{height: 80, width: 500, alignItems: "center"}}>
                                 <ProfilePicture selectedImage={chatUserData["ImageUrl"]} size={80}/>
                             </TouchableOpacity>
-                            {matched &&
-                                (hasAddress) ?
-                                    <TouchableOpacity onPress={seeAppointment} style={{borderWidth: 2, borderColor: "black",
-                                        marginVertical: 10, padding: 5, borderRadius: 15}}>
-                                        <Text>See Appointment</Text>
-                                    </TouchableOpacity>
+                            {matched && (
+                                hasAddress ?
+                                (<TouchableOpacity onPress={seeAppointment} style={{borderWidth: 2, borderColor: "black",
+                                    marginVertical: 10, padding: 5, borderRadius: 15}}>
+                                    <Text>See Appointment</Text>
+                                </TouchableOpacity>)
                                 :
-                                <TouchableOpacity onPress={pressAppointment} style={{height: 50, width: 200, alignItems: "center"}}>
+                                (<TouchableOpacity onPress={pressAppointment} style={{height: 50, width: 200, alignItems: "center"}}>
                                     <Entypo name={"location"} size={40} color={"black"}></Entypo>
-                                </TouchableOpacity>
+                                </TouchableOpacity> ))
                             }
-                            <View style={{flexDirection:"row", width: Dimensions.get("window").width, marginTop: -10}}>
+                            <View style={{width: Dimensions.get("window").width,
+                                alignItems: "center", flexDirection: "row",
+                                marginTop: 0, justifyContent: "space-between"}}>
                                 <TouchableOpacity onPress={handleQuit}>
                                     <MaterialIcons name="arrow-back" size={40} color="black"/>
                                 </TouchableOpacity>
-                            </View>
-                            <View style={{width: Dimensions.get("window").width, alignItems: "flex-end", marginTop: -30}}>
                                 <TouchableOpacity onPress={closePanel}>
                                     <AntDesign name={"up"} size={30} color={"black"}></AntDesign>
                                 </TouchableOpacity>

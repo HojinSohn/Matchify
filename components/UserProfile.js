@@ -62,6 +62,9 @@ function UserProfile({userData}) {
                 return (
                     <View style={styles.pageContainer}>
                             <ScrollView style={styles.artistContainer} nestedScrollEnabled={true}>
+                                <View style={{width: "100%", alignItems: "center"}}>
+                                    <Text style={{fontWeight: "bold"}}>Top Artists</Text>
+                                </View>
                                 <ArtistProfiles userData={userData}></ArtistProfiles>
                             </ScrollView>
                     </View>
@@ -69,6 +72,9 @@ function UserProfile({userData}) {
             case 'Page 3':
                 return (<View style={styles.pageContainer}>
                         <ScrollView style={styles.artistContainer} nestedScrollEnabled={true}>
+                            <View style={{width: "100%", alignItems: "center"}}>
+                                <Text style={{fontWeight: "bold"}}>Top Tracks</Text>
+                            </View>
                             <TrackProfiles userData={userData}></TrackProfiles>
                         </ScrollView>
                 </View>)
@@ -121,25 +127,28 @@ function ArtistProfiles({userData}) {
         fetchData();
     }, [userData]);
 
-    return (
-        <ScrollView style={{backgroundColor: '#000000', padding: 15}}>
-            {
-                (infos !== null && infos !== undefined) ? (
-                    infos.map((info, index) => {
-                        return (
-                            <View key={index} style={styles.infoContainer}>
-                                <Text style={styles.infoText}>Artist Info:</Text>
-                                <ArtistProfile artistInfo={info}/>
-                            </View>
-                        );
-                    })
-                ) : (
-                    <View>
-                        {/*return (<Text>No Info</Text>)*/}
-                    </View>
-                )}
-        </ScrollView>
-    );
+    if (infos == null || infos.length === 0) {
+        return (
+            <View style={{width: "100%", alignItems: "center"}}>
+                <Text style={{fontSize: 30}}>No Info</Text>
+            </View>
+        )
+    } else {
+        return (
+            <ScrollView style={{backgroundColor: '#000000', padding: 15}}>
+                {
+                        infos.map((info, index) => {
+                            return (
+                                <View key={index} style={styles.infoContainer}>
+                                    <Text style={styles.infoText}>Artist Info:</Text>
+                                    <ArtistProfile artistInfo={info}/>
+                                </View>
+                            );
+                        })
+                }
+            </ScrollView>
+        );
+    }
 }
 
 function TrackProfiles({userData}) {
@@ -155,10 +164,16 @@ function TrackProfiles({userData}) {
         fetchData();
     }, [userData]);
 
-    return (
-        <ScrollView style={{backgroundColor: '#000000', padding: 15}}>
-            {
-                (infos !== null && infos !== undefined) ? (
+    if (infos == null || infos.length === 0) {
+        return (
+            <View style={{width: "100%", alignItems: "center"}}>
+                <Text style={{fontSize: 30}}>No Info</Text>
+            </View>
+        )
+    } else {
+        return (
+            <ScrollView style={{backgroundColor: '#000000', padding: 15}}>
+                {
                     infos.map((info, index) => {
                         return (
                             <View key={index} style={styles.infoContainer}>
@@ -167,13 +182,10 @@ function TrackProfiles({userData}) {
                             </View>
                         );
                     })
-                ) : (
-                    <View>
-                        {/*return (<Text>No Info</Text>)*/}
-                    </View>
-                )}
-        </ScrollView>
-    );
+                }
+            </ScrollView>
+        );
+    }
 }
 
 const processArtists = async (userData) => {

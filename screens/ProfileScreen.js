@@ -1,7 +1,7 @@
-import {View, Text, StyleSheet, Dimensions, TouchableOpacity} from "react-native";
+import {View, Text, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator} from "react-native";
 import UserProfile from "../components/UserProfile";
 import {Feather, MaterialIcons} from "@expo/vector-icons";
-import React from "react";
+import React, {useState} from "react";
 import {useNavigation} from "@react-navigation/core";
 import {heartDelete, matchAdd} from "../firebase/firestore";
 
@@ -9,26 +9,35 @@ var screenWidth = Dimensions.get('window').width;
 const ProfileScreen = (userData) => {
     const navigation = useNavigation()
     const chatUserData = userData.route.params?.param;
+    const [processing, setProcessing] = useState(false);
 
     const goBack = async () => {
         navigation.replace("Home")
     }
 
     const noPress = async () => {
+        setProcessing(true)
         await heartDelete(chatUserData["username"])
         navigation.replace("Home")
     }
 
     const yesPress = async () => {
-        console.log("yes Press", chatUserData)
+        setProcessing(true)
         await matchAdd(chatUserData["username"])
         navigation.replace("Home")
     }
 
+    if (processing) {
+        return (
+            <View>
+                <ActivityIndicator size={40}/>
+            </View>
+        )
+    }
     return (
         <View style={styles.container}>
             <View style={styles.exit}>
-                <TouchableOpacity onPress={goBack}>
+                <TouchableOpacity onPress={goBack} disabled={processing}>
                     <Feather name="x" size={40} color="black"/>
                 </TouchableOpacity>
             </View>

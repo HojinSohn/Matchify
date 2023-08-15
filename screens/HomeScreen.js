@@ -75,7 +75,6 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-
             {userData !== null && (
                 <View style={styles.heartPanel}>
                     <HeartPanel heartList={userData["heartList"]}></HeartPanel>

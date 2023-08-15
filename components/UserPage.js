@@ -22,9 +22,7 @@ function UserPage({ allUserData, }) {
                     const artists = userData["topArtists"];
                     if (artists != null) {
                         artists.forEach(artistID => {
-                            // console.log(artistID, filter);
-                            if (artistID.includes(filter)) {
-                                console.log("arti find::::", artistID)
+                            if (artistID?.toLowerCase().includes(filter?.toLowerCase())) {
                                 found = true;
                             }
                         })
@@ -33,17 +31,13 @@ function UserPage({ allUserData, }) {
                     const tracks = userData["topTracks"];
                     if (tracks != null) {
                         tracks.forEach(trackID => {
-                            if (trackID.includes(filter)) {
-                                console.log("track find::::", trackID)
+                            if (trackID?.toLowerCase().includes(filter?.toLowerCase())) {
                                 found = true;
                             }
                         })
                     }
-                    console.log("wtf", userData["username"])
 
-                    console.log(found);
                     if (found) {
-                        console.log("keyword found::", filter, userData["username"])
                         newAllData.unshift(userData)
                     } else {
                         newAllData.push(userData);
@@ -53,8 +47,6 @@ function UserPage({ allUserData, }) {
             setData(newAllData);
         }
         processAllData();
-        console.log("keyword:::::", filter)
-        console.log(data)
 
     }, [filter])
 

@@ -26,6 +26,7 @@ const PromptScreen = () => {
     const [prevImageUrl, setPrevImageUrl] = useState(null);
     var gotAccessToken = false;
     const [existingProfile, setExistingProfile] = useState(false);
+    const [processing, setProcessing] = useState(false);
 
     WebBrowser.maybeCompleteAuthSession();
 
@@ -117,6 +118,7 @@ const PromptScreen = () => {
 
     //saves user data to firebase firestore
     const handleSave = async () => {
+        setProcessing(true);
         if (existingProfile) {
             console.log("handle save ex")
             var url = prevImageUrl;
@@ -226,18 +228,21 @@ const PromptScreen = () => {
                 </View>
             </View>
             <TouchableOpacity
+                disabled={processing}
                 onPress={pfpSelect}
                 style={styles.button}
             >
                 <Text style={styles.buttonText}>Upload Profile Photo</Text>
             </TouchableOpacity>
             <TouchableOpacity
+                disabled={processing}
                 onPress={handleSave}
                 style={styles.button}
             >
                 <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity
+                disabled={processing}
                 onPress={handleQuit}
                 style={styles.button}
             >
