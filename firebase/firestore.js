@@ -1,5 +1,5 @@
 import {auth, db} from "./firebase"
-import {arrayUnion, collection, doc, getDoc, getDocs, setDoc, updateDoc, serverTimestamp} from "firebase/firestore";
+import {arrayUnion, collection, doc, getDoc, getDocs, setDoc, updateDoc} from "firebase/firestore";
 
 const getCurrentUserDoc = async () => {
     const docRef = await doc(db, "users", auth.currentUser?.email);
@@ -15,12 +15,10 @@ const getCurrentUserData = async () => {
 }
 
 const getUserDataByName = async (name) => {
-    // console.log("getUserDataByName: ", name)
     const datas = await getAllUserData();
     let userData = null;
     datas.forEach(data => {
         if (data["username"] === name) {
-            // console.log("getUserDataByName: ", data)
             userData = data;
         }
     })
@@ -28,14 +26,11 @@ const getUserDataByName = async (name) => {
 }
 
 const getUserDocByName = async (name) => {
-    console.log("getUserDocByName:", name);
     const userDocs = await getDocs(collection(db, "users"));
     let userDoc = null
     userDocs.forEach((doc) => {
         const userData = doc.data();
-        console.log("gettt::::", userData["username"], name);
         if (userData["username"] === name) {
-            console.log("hihi");
             userDoc = doc;
         }
     })
@@ -48,7 +43,6 @@ const heartAdd = async (name) => {
     const heartList = (await getUserDataByName(name))["heartList"];
 
     if (heartList === undefined || !heartList.includes(currentUserName)) {
-        console.log("heartAdd function: adding...",userDoc.data());
         await updateDoc(userDoc.ref, {heartList : arrayUnion(currentUserName)});
     } else {
         console.log("heartAdd function: Already in the list");
@@ -77,11 +71,9 @@ const matchAdd = async (name) => {
     const matchList = userData["matchList"];
     const currentMatchList = currentUserData["matchList"];
     if (matchList === undefined || !matchList.includes(currentUserData["username"])) {
-        console.log("huh")
         await updateDoc(matchUserDoc.ref, {matchList : arrayUnion(currentUserData["username"])})
     }
     if (currentMatchList === undefined || !currentMatchList.includes(userData["username"])) {
-        console.log("huh")
         await updateDoc(currentUserDoc, {matchList : arrayUnion(userData["username"])})
     }
     const chatRoomRef = await getChatRoomRef(currentUserData["username"], userData["username"])
@@ -138,7 +130,6 @@ const getChatRoomRef = async (u1Name, u2Name) => {
         });
         await updateDoc(convDocRef, {match: false})
     }
-    console.log(convDocRef);
 
     return (convDocRef);
 }
@@ -157,7 +148,6 @@ const getChatRoomDatas = async (username) => {
 }
 
 const makeAppointment = async (chatRoomRef, appointmentData) => {
-    console.log(chatRoomRef, appointmentData);
     await updateDoc(chatRoomRef, {appointmentData: appointmentData})
 }
 

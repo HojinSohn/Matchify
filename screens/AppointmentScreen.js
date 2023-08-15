@@ -16,7 +16,9 @@ import {
     makeAppointment
 } from "../firebase/firestore";
 
-const mapApiKey = "AIzaSyBnrdI9syDnOlXWlGomAqtNl_jD_uhoaIo"
+import {MAP_API_KEY} from "@env"
+
+const mapApiKey = MAP_API_KEY;
 
 const AppointmentScreen = (data) => {
     const navigation = useNavigation();
@@ -44,14 +46,10 @@ const AppointmentScreen = (data) => {
 
     useEffect(() => {
         const fetchdata = async () => {
-            console.log(chatUserData)
-            console.log("bo")
             const chatRoomRef
                 = await getChatRoomRef(chatUserData["username"], (await getCurrentUserData())["username"])
             const roomData = await getChatRoomData(chatRoomRef);
-            console.log(roomData.appointmentData);
             await setAppData(roomData.appointmentData)
-            console.log(roomData.appointmentData)
             if (roomData.appointmentData != null) {
                 setAddress(roomData.appointmentData.address)
                 setLocation(roomData.appointmentData.location);

@@ -5,7 +5,7 @@ import {
 } from "../firebase/firestore";
 import {StyleSheet, Text, TouchableOpacity, View, ScrollView} from 'react-native'
 import {useNavigation} from "@react-navigation/core";
-import {MaterialCommunityIcons, MaterialIcons} from "@expo/vector-icons";
+import {MaterialIcons} from "@expo/vector-icons";
 import ProfilePicture from "../components/ProfilePicture";
 
 const ChatListScreen = () => {
@@ -19,7 +19,6 @@ const ChatListScreen = () => {
             const userList = [];
             chatRoomDatas.forEach(chatRoomData => {
                 const members = chatRoomData["members"];
-                console.log("hola processUserDAtews: ", members, "and, ", username);
                 if (members[0] === username) {
                     if (currentUser["matchList"].includes(members[1])) {
                         userList.unshift(members[1])

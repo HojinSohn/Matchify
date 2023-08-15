@@ -2,7 +2,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
-    Text, Dimensions, Alert,
+    Text, Dimensions,
 } from "react-native";
 import {
     getChatRoomData,
@@ -11,13 +11,12 @@ import {
     getMessages, isMatchedChat,
 } from "../firebase/firestore";
 import React, {useCallback, useEffect, useState} from "react";
-import {arrayUnion, updateDoc, onSnapshot, getDocs, collection} from "firebase/firestore";
+import {arrayUnion, updateDoc, onSnapshot} from "firebase/firestore";
 import {useNavigation} from "@react-navigation/core";
 import {Bubble, GiftedChat} from "react-native-gifted-chat";
-import {MaterialIcons, Feather, Ionicons, AntDesign, Entypo} from "@expo/vector-icons";
+import {MaterialIcons, Feather, AntDesign, Entypo} from "@expo/vector-icons";
 import ProfilePicture from "../components/ProfilePicture";
 import UserProfile from "../components/UserProfile";
-import {db} from "../firebase/firebase";
 
 const ChatRoomScreen = (data) => {
     const navigation = useNavigation();
@@ -39,7 +38,6 @@ const ChatRoomScreen = (data) => {
         setUserProfileUrl(u1Data["ImageUrl"])
         const u2Name = chatUserData["username"];
         chatRoomRef = await getChatRoomRef(u1Name, u2Name);
-        // console.log(await isMatchedChat(chatRoomRef))
         setMatched(await isMatchedChat(chatRoomRef))
         setShowProfilePanel(true);//
         const roomData = await getChatRoomData(chatRoomRef)
@@ -48,10 +46,6 @@ const ChatRoomScreen = (data) => {
     }
 
     const fetchUpdates = async () => {
-        // const isMatched = await isMatchedChat(chatRoomRef)
-        // setMatched(isMatched)
-        // console.log(isMatched)
-        console.log(matched)
         const roomData = await getChatRoomData(chatRoomRef)
         setChatRoomData(roomData);
         setHasAddress(roomData.appointmentData != null);

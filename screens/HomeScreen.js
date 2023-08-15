@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react'
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {auth} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import UserPage from "../components/UserPage";
 import {getToken} from "../api/token";
-import {getAllUserData, getCurrentUserData, getCurrentUserDoc} from "../firebase/firestore";
-import {Entypo, MaterialCommunityIcons, SimpleLineIcons} from "@expo/vector-icons";
+import {getAllUserData, getCurrentUserData} from "../firebase/firestore";
+import {Entypo, MaterialCommunityIcons} from "@expo/vector-icons";
 import HeartPanel from "../components/HeartPanel";
+import {SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URL} from "@env"
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -14,6 +15,7 @@ const HomeScreen = () => {
     const [allUserData, setAllUserData] = useState(null);
 
     useEffect(() => {
+        console.log(SPOTIFY_CLIENT_ID, '\n', SPOTIFY_CLIENT_SECRET , '\n', SPOTIFY_REDIRECT_URL);
         auth.onAuthStateChanged(user => {
             if (!user) {
                 navigation.replace('Login');

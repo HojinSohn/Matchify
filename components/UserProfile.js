@@ -1,4 +1,4 @@
-import {Dimensions, FlatList, ScrollView, SectionList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import ProfilePicture from "./ProfilePicture";
 import React, {useEffect, useState} from "react";
 import {getArtistInfo, getTrackInfo} from "../api/api";

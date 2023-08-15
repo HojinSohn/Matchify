@@ -4,7 +4,7 @@ import {auth, storage} from "../firebase/firebase";
 import {useNavigation} from "@react-navigation/core";
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from "../components/ProfilePicture";
-import {doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
+import {getDoc, setDoc, updateDoc} from "firebase/firestore";
 import {ref, uploadBytes } from 'firebase/storage';
 import {useAuthRequest} from "expo-auth-session";
 import * as WebBrowser from 'expo-web-browser';
@@ -65,7 +65,6 @@ const PromptScreen = () => {
                 setUserTopItems(userData["topArtists"])
                 setUserProfileData(userData["userSpotifyData"])
             } else {
-                // docSnap.data() will be undefined in this case
                 console.log("No such document!");
             }
         }
@@ -77,29 +76,20 @@ const PromptScreen = () => {
             try {
                 if (response?.type === 'success') {
                     const {code} = response.params;
-                    console.log(code);
-                    // const access_token = await exchangeCodeForAccessToken(code); // it sets token in token.js
                     await exchangeCodeForAccessToken(code);
                     gotAccessToken = true;
                     const profileData = await getUserProfile();
                     setUserProfileData(profileData);
-                    // console.log("wow")
-
                     const topItems = await getUsersTopItem();
                     setUserTopItems(topItems);
-
-                    // console.log("wowwww")
-
                     const topTracks = await getUsersTopTrack();
                     setUserTopTracks(topTracks);
-                    // Use the access token to make a request to the Spotify API
                 }
             } catch (error) {
                 console.log("Error in spotify data processing:::: ", error);
             }
         }
         getSpotifyData();
-        // console.log("Hello@@@@@@@@@@@@@@", response?.type);
     }, [response]);
 
     const handleQuit = () => {
@@ -120,7 +110,6 @@ const PromptScreen = () => {
     const handleSave = async () => {
         setProcessing(true);
         if (existingProfile) {
-            console.log("handle save ex")
             var url = prevImageUrl;
             const fileName = pfp.substring(pfp.lastIndexOf('/') + 1);
             if (pfp !== prevPfp) {

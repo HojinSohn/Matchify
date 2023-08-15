@@ -1,12 +1,12 @@
 import axios from "axios";
-// import {encode} from "base-64";
 import { encode } from 'base-64';
+import {SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URL} from "@env"
 
 var token = null;
 
-const clientIdSpotify = "c2f5a819d4684f8c9efc489144cb0e0a";
-const clientSecretSpotify = '0cb4370ee5254a16aa2fd319290a15f5';
-const redirectUri = 'exp://192.168.1.6:19000/--/';
+const clientIdSpotify = SPOTIFY_CLIENT_ID;
+const clientSecretSpotify = SPOTIFY_CLIENT_SECRET;
+const redirectUri = SPOTIFY_REDIRECT_URL;
 const exchangeCodeForAccessToken = async (code) => {
     try {
         const response = await axios.post(
@@ -40,6 +40,7 @@ const exchangeCodeForAccessToken = async (code) => {
 };
 
 const getToken = async () => {
+    // console.log("getToken", SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URL)
     if (token !== null) {
         // console.log("The accessToken IS in token.js: ::::::::222", token);
         return token;

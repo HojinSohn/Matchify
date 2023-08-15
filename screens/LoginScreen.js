@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/core'
 import React, {useState, useEffect} from 'react'
-import {KeyboardAvoidingView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View} from 'react-native'
+import {KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
 import {auth} from '../firebase/firebase'
 const LoginScreen = () => {
     const [email, setEmail] = useState('')
@@ -12,8 +12,6 @@ const LoginScreen = () => {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                console.log("111, ", auth.currentUser);
-                console.log("222, ", isSigningUp)
                 if (isSigningUp) {
                     navigation.replace("Prompt")
                 } else {
@@ -50,7 +48,6 @@ const LoginScreen = () => {
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            // behavior={"padding"}
         >
             <View style={styles.inputContainer}>
                 <TextInput

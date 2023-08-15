@@ -1,9 +1,8 @@
-import {Image, View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions} from 'react-native'
-import UserProfile from "./UserProfile";
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions} from 'react-native'
 import React, {useEffect, useState} from "react";
-import {getUserDataByName, getUserDocByName} from "../firebase/firestore";
+import {getUserDataByName} from "../firebase/firestore";
 import ProfilePicture from "./ProfilePicture";
-import {AntDesign, Feather} from "@expo/vector-icons";
+import {AntDesign} from "@expo/vector-icons";
 import {useNavigation} from "@react-navigation/core";
 
 function HeartPanel({ heartList }) {
