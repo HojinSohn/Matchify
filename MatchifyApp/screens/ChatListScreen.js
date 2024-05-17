@@ -20,13 +20,13 @@ const ChatListScreen = () => {
             chatRoomDatas.forEach(chatRoomData => {
                 const members = chatRoomData["members"];
                 if (members[0] === username) {
-                    if (currentUser["matchList"].includes(members[1])) {
+                    if (currentUser["matchList"] != null && currentUser["matchList"].includes(members[1])) {
                         userList.unshift(members[1])
                     } else {
                         userList.push(members[1]);
                     }
                 } else {
-                    if (currentUser["matchList"].includes(members[0])) {
+                    if (currentUser["matchList"] != null && currentUser["matchList"].includes(members[0])) {
                         userList.unshift(members[0])
                     } else {
                         userList.push(members[0]);

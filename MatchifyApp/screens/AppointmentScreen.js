@@ -204,7 +204,6 @@ const AppointmentScreen = (data) => {
                         placeholder='Search'
                         onPress={(data, details = null) => {
                             // 'details' is provided when fetchDetails = true
-                            console.log(data, "\n", details);
                             setLocation({
                                 latitude: details.geometry.location.lat,
                                 longitude: details.geometry.location.lng,

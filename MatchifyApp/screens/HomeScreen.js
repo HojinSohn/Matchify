@@ -7,7 +7,6 @@ import {getToken} from "../api/token";
 import {getAllUserData, getCurrentUserData} from "../firebase/firestore";
 import {Entypo, MaterialCommunityIcons} from "@expo/vector-icons";
 import HeartPanel from "../components/HeartPanel";
-import {SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URL} from "@env"
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -15,7 +14,6 @@ const HomeScreen = () => {
     const [allUserData, setAllUserData] = useState(null);
 
     useEffect(() => {
-        console.log(SPOTIFY_CLIENT_ID, '\n', SPOTIFY_CLIENT_SECRET , '\n', SPOTIFY_REDIRECT_URL);
         auth.onAuthStateChanged(user => {
             if (!user) {
                 navigation.replace('Login');
